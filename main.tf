@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "~> 3.5.0"
     }
   }
@@ -20,13 +20,6 @@ resource "aws_budgets_budget" "ec2" {
   time_period_end   = "2021-10-30_00:00"
   time_period_start = "2021-09-28_00:00"
   time_unit         = "MONTHLY"
-
-  cost_filter {
-    name = "Service"
-    values = [
-      "Amazon Elastic Compute Cloud - Compute",
-    ]
-  }
 
   notification {
     comparison_operator        = "GREATER_THAN"
