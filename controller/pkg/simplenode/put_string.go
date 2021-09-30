@@ -16,7 +16,6 @@ func PutString(ctx context.Context, node string, msg string) (cid string, err er
 		log.Println(node, err)
 		return
 	}
-
 	return
 }
 
