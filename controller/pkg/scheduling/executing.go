@@ -6,10 +6,10 @@ import (
 )
 
 func ExecWithNodeList(ctx context.Context, funcName string,
-	fn func(context.Context, string, ...interface{}) error,
-	nodesList []string, options ...interface{}) (errCnt int) {
+	fn func(context.Context, string) error,
+	nodesList []string) (errCnt int) {
 	for _, node := range nodesList {
-		err := fn(ctx, node, options...)
+		err := fn(ctx, node)
 		if err != nil {
 			errCnt++
 			log.Println(funcName, node, err)
@@ -19,10 +19,10 @@ func ExecWithNodeList(ctx context.Context, funcName string,
 }
 
 func ExecWithParameterList(ctx context.Context, funcName string,
-	fn func(context.Context, string, string, ...interface{}) error,
-	nodesList []string, parameterList []string, options ...interface{}) (errCnt int) {
+	fn func(context.Context, string, string) error,
+	nodesList []string, parameterList []string) (errCnt int) {
 	for i, node := range nodesList {
-		err := fn(ctx, node, parameterList[i], options...)
+		err := fn(ctx, node, parameterList[i])
 		if err != nil {
 			errCnt++
 			log.Println(funcName, node, err)
