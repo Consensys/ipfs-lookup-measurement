@@ -14,10 +14,7 @@ import (
 func main() {
 	log.SetFlags(log.Lshortfile)
 
-	parseCommandLine()
-}
-
-func parseCommandLine() {
+	ctx := context.Background()
 
 	simpleCmd := flag.NewFlagSet("simple", flag.ExitOnError)
 	simpleNodesFile := simpleCmd.String("l", "nodes-list.out", "nodes list file")
@@ -30,7 +27,7 @@ func parseCommandLine() {
 	case "simple":
 		simpleCmd.Parse(os.Args[2:])
 		nodesList := config.GetNodesList(*simpleNodesFile)
-		simplenode.Experiment(context.Background(), nodesList)
+		simplenode.Experiment(ctx, nodesList)
 	default:
 		subCommandUsage()
 	}

@@ -4,12 +4,14 @@ import (
 	"context"
 	"log"
 	"strings"
+	"time"
 
 	api "github.com/ipfs/go-ipfs-api"
 )
 
 func PutString(ctx context.Context, node string, msg string) (cid string, err error) {
 	sh := api.NewShell(node)
+	sh.SetTimeout(20 * time.Second)
 
 	cid, err = sh.Add(strings.NewReader(msg))
 	if err != nil {
