@@ -1,3 +1,4 @@
+# use github.com/fussion-suite/ipfs-cluster-aws instead
 terraform {
   required_providers {
     aws = {
@@ -9,23 +10,48 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-2"
 }
 
-resource "aws_budgets_budget" "ec2" {
-  name              = "budget-ec2-monthly"
-  budget_type       = "COST"
-  limit_amount      = "500"
-  limit_unit        = "USD"
-  time_period_end   = "2021-10-30_00:00"
-  time_period_start = "2021-09-28_00:00"
-  time_unit         = "MONTHLY"
-
-  notification {
-    comparison_operator        = "GREATER_THAN"
-    threshold                  = 100
-    threshold_type             = "PERCENTAGE"
-    notification_type          = "FORECASTED"
-    subscriber_email_addresses = ["igor.zenyuk@gmail.com"]
+resource "aws_instance" "node1" {
+  ami = "ami-07738c5c0ee584ed1"
+  instance_type = "t2.small"
+  tags = {
+    Name = "ipfs-pegasys"
   }
 }
+
+resource "aws_instance" "node2" {
+  ami = "ami-07738c5c0ee584ed1"
+  instance_type = "t2.small"
+  tags = {
+    Name = "ipfs-pegasys"
+  }
+}
+
+resource "aws_instance" "node3" {
+  ami = "ami-07738c5c0ee584ed1"
+  instance_type = "t2.small"
+  tags = {
+    Name = "ipfs-pegasys"
+  }
+}
+
+## don't have permission
+#resource "aws_budgets_budget" "ec2" {
+#  name              = "budget-ec2-monthly"
+#  budget_type       = "COST"
+#  limit_amount      = "500"
+#  limit_unit        = "USD"
+#  time_period_end   = "2021-10-30_00:00"
+#  time_period_start = "2021-09-28_00:00"
+#  time_unit         = "MONTHLY"
+#
+#  notification {
+#    comparison_operator        = "GREATER_THAN"
+#    threshold                  = 100
+#    threshold_type             = "PERCENTAGE"
+#    notification_type          = "FORECASTED"
+#    subscriber_email_addresses = ["igor.zenyuk@gmail.com"]
+#  }
+#}
