@@ -13,12 +13,28 @@ provider "aws" {
   region = "us-east-2"
 }
 
+resource "aws_vpc" "ipfs-vpc" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "ipfs-pegasys"
+  }
+}
+
+resource "aws_subnet" "ipfs-subnet" {
+  cidr_block = "10.0.1.0/24"
+  vpc_id     = aws_vpc.ipfs-vpc.id
+  tags = {
+    Name = "ipfs-pegasys"
+  }
+}
+
 resource "aws_instance" "node1" {
   ami = "ami-07738c5c0ee584ed1"
   instance_type = "t2.small"
   tags = {
     Name = "ipfs-pegasys"
   }
+  subnet_id = aws_subnet.ipfs-subnet.id
 }
 
 resource "aws_instance" "node2" {
@@ -27,6 +43,7 @@ resource "aws_instance" "node2" {
   tags = {
     Name = "ipfs-pegasys"
   }
+  subnet_id = aws_subnet.ipfs-subnet.id
 }
 
 resource "aws_instance" "node3" {
@@ -35,7 +52,10 @@ resource "aws_instance" "node3" {
   tags = {
     Name = "ipfs-pegasys"
   }
+  subnet_id = aws_subnet.ipfs-subnet.id
 }
+
+
 
 ## don't have permission
 #resource "aws_budgets_budget" "ec2" {
