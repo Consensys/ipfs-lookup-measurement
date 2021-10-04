@@ -260,5 +260,6 @@
     "timezone": "",
     "title": "IPFS Measurement Logging",
     "uid": "OtnnSHDnz",
-    "version": 2
+    "version": 2,
+    "refresh": "10s"
   }
