@@ -1,0 +1,91 @@
+version: "3.9"
+services:
+  
+  monitor:
+    image: ipfs-monitor
+    container_name: monitor
+    ports:
+      - "3000:3000"
+      - "3100:3100"
+    networks:
+      - shared
+
+  node1:
+    image: ipfs-node
+    container_name: node1
+    ports:
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "5001:5001"
+      - "8080:8080"
+    environment:
+      HOST_NAME: node1
+    networks:
+      - shared
+    depends_on:
+      - monitor
+
+  node2:
+    image: ipfs-node
+    container_name: node2
+    ports:
+      - "4002:4001"
+      - "4002:4001/udp"
+      - "5002:5001"
+      - "8081:8080"
+    environment:
+      HOST_NAME: node2
+    networks:
+      - shared
+    depends_on:
+      - monitor 
+
+  node3:
+    image: ipfs-node
+    container_name: node3
+    ports:
+      - "4003:4001"
+      - "4003:4001/udp"
+      - "5003:5001"
+      - "8082:8080"
+    environment:
+      HOST_NAME: node3
+    networks:
+      - shared
+    depends_on:
+      - monitor 
+
+  node4:
+    image: ipfs-node
+    container_name: node4
+    ports:
+      - "4004:4001"
+      - "4004:4001/udp"
+      - "5004:5001"
+      - "8083:8080"
+    environment:
+      HOST_NAME: node4
+    networks:
+      - shared
+    depends_on:
+      - monitor 
+
+  node5:
+    image: ipfs-node
+    container_name: node5
+    ports:
+      - "4005:4001"
+      - "4005:4001/udp"
+      - "5005:5001"
+      - "8084:8080"
+    environment:
+      HOST_NAME: node5
+    networks:
+      - shared
+    depends_on:
+      - monitor 
+
+networks:
+  shared:
+    name: shared
+    external: true
