@@ -6,7 +6,7 @@ RUN wget https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux
 RUN wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz && tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}"
 COPY promtail-local-config.yaml /app/
-RUN git clone https://github.com/wcgcyx/go-ipfs.git  && cd go-ipfs && checkout more-logging && make build
+RUN git clone https://github.com/wcgcyx/go-ipfs.git  && cd go-ipfs && git checkout more-logging && make build
 
 COPY docker-entrypoint.sh /app/
 
