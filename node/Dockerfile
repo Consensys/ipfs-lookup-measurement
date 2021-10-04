@@ -8,7 +8,7 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 COPY promtail-local-config.yaml /app/
 RUN git clone https://github.com/wcgcyx/go-libp2p-kad-dht.git && cd go-libp2p-kad-dht && git checkout more-logging && cd ..
 RUN git clone https://github.com/wcgcyx/go-ipfs.git  && cd go-ipfs && git checkout more-logging && echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod && make build
-
+RUN mkdir /ipfs-tests/
 COPY docker-entrypoint.sh /app/
 
 CMD [ "./docker-entrypoint.sh" ]
