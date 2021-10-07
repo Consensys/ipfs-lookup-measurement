@@ -5,8 +5,7 @@ agent: cmd/agent/*.go pkg/*/*.go
 	go build cmd/agent/*
 
 nodes-list.out :
-	printf " localhost:5001 \n localhost:5001 \n localhost:5001 \n localhost:5001 \n " > nodes-list.out
-	printf " http://localhost:3030 \n http://localhost:3030 \n " > nodes-list.out
+	printf " http://localhost:3030 \n " > nodes-list.out
 
 itest: nodes-list.out controller agent
 	./controller simple -l nodes-list.out

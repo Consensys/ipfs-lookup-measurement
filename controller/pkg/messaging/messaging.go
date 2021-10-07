@@ -90,7 +90,7 @@ func publish(m RequestMessage) error {
 	}
 
 	// write cid to a file
-	err = cidToFile(cid, msg)
+	err = os.WriteFile(cid, []byte(msg), 0644)
 	if err != nil {
 		log.Println(err, cid)
 		return err
@@ -103,6 +103,7 @@ func publish(m RequestMessage) error {
 		return err
 	}
 
+	log.Println("publish is done:", cid)
 	return nil
 }
 
@@ -134,23 +135,6 @@ func lookup(m RequestMessage) error {
 	// buf := &bytes.Buffer{}
 	// buf.ReadFrom(resp)
 	// msg = buf.String()
+	log.Println("lookup is done:", cid)
 	return nil
-}
-
-func cidToFile(cid string, msg string) error {
-	ipfsTestFolder := os.Getenv("PERFORMANCE_TEST_DIR")
-	if ipfsTestFolder == "" {
-		ipfsTestFolder = "/ipfs-tests"
-	}
-	err := os.RemoveAll(ipfsTestFolder)
-	if err != nil {
-		log.Println(err, ipfsTestFolder)
-		return err
-	}
-	err = os.MkdirAll(ipfsTestFolder, 0755)
-	if err != nil {
-		log.Println(err, ipfsTestFolder)
-		return err
-	}
-	return os.WriteFile(ipfsTestFolder+"/"+cid, []byte(msg), 0644)
 }
