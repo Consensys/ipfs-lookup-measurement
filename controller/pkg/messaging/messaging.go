@@ -140,7 +140,7 @@ func lookup(m RequestMessage) error {
 func cidToFile(cid string, msg string) error {
 	ipfsTestFolder := os.Getenv("PERFORMANCE_TEST_DIR")
 	if ipfsTestFolder == "" {
-		ipfsTestFolder = "ipfs-test"
+		ipfsTestFolder = "/ipfs-tests"
 	}
 	err := os.RemoveAll(ipfsTestFolder)
 	if err != nil {
