@@ -18,6 +18,7 @@ services:
     image: ipfs-node
     container_name: node1
     ports:
+      - "3031:3030"
       - "4001:4001"
       - "4001:4001/udp"
       - "5001:5001"
@@ -33,6 +34,7 @@ services:
     image: ipfs-node
     container_name: node2
     ports:
+      - "3032:3030"
       - "4002:4001"
       - "4002:4001/udp"
       - "5002:5001"
@@ -48,6 +50,7 @@ services:
     image: ipfs-node
     container_name: node3
     ports:
+      - "3033:3030"
       - "4003:4001"
       - "4003:4001/udp"
       - "5003:5001"
@@ -63,6 +66,7 @@ services:
     image: ipfs-node
     container_name: node4
     ports:
+      - "3034:3030"
       - "4004:4001"
       - "4004:4001/udp"
       - "5004:5001"
@@ -78,6 +82,7 @@ services:
     image: ipfs-node
     container_name: node5
     ports:
+      - "3035:3030"
       - "4005:4001"
       - "4005:4001/udp"
       - "5005:5001"
