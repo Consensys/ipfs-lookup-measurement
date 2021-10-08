@@ -4,8 +4,13 @@ package simplenode
 import (
 	"bytes"
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"sync"
@@ -68,6 +73,50 @@ func postCall(cmd string, node string, m messaging.RequestMessage) error {
 	if err != nil {
 		return err
 	}
-	_, err = http.Post(node, "application/json", bytes.NewBuffer(b))
+
+	buf, err := encryptStream(b)
+	if err != nil {
+		return err
+	}
+
+	_, err = http.Post(node, "application/json", buf)
 	return err
+}
+
+func encryptStream(bs []byte) (buf io.Reader, err error) {
+	key, err := ioutil.ReadFile(".key")
+	if err != nil {
+		return
+	}
+	key = key[:32]
+
+	// generate a new aes cipher using our 32 byte long key
+	c, err := aes.NewCipher(key)
+	if err != nil {
+		return
+	}
+
+	// gcm or Galois/Counter Mode, is a mode of operation
+	// for symmetric key cryptographic block ciphers
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		return
+	}
+
+	// creates a new byte array the size of the nonce
+	// which must be passed to Seal
+	nonce := make([]byte, gcm.NonceSize())
+	// populates our nonce with a cryptographically secure
+	// random sequence
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return
+	}
+
+	// here we encrypt our text using the Seal function
+	// Seal encrypts and authenticates plaintext, authenticates the
+	// additional data and appends the result to dst, returning the updated
+	// slice. The nonce must be NonceSize() bytes long and unique for all
+	// time, for a given key.
+
+	return bytes.NewBuffer(gcm.Seal(nonce, nonce, bs, nil)), nil
 }

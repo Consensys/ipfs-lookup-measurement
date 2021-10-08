@@ -1,9 +1,13 @@
 package messaging
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -33,7 +37,13 @@ func AgentHangler() http.Handler {
 
 			// parsing json
 			var m RequestMessage
-			err := json.NewDecoder(r.Body).Decode(&m)
+			// err := json.NewDecoder(encryptStream(r.Body)).Decode(&m)
+			plaintext, err := decryptStream(r.Body)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			err = json.Unmarshal(plaintext, &m)
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				fmt.Fprintln(w, "failed")
@@ -59,6 +69,41 @@ func AgentHangler() http.Handler {
 
 			fmt.Fprintln(w, "ok")
 		})
+}
+
+func decryptStream(r io.Reader) (plaintext []byte, err error) {
+	key, err := ioutil.ReadFile(".key")
+	if err != nil {
+		return
+	}
+	key = key[:32]
+
+	// if our program was unable to read the file
+	// print out the reason why it can't
+	if err != nil {
+		return
+	}
+
+	c, err := aes.NewCipher(key)
+	if err != nil {
+		return
+	}
+
+	gcm, err := cipher.NewGCM(c)
+	if err != nil {
+		return
+	}
+
+	nonceSize := gcm.NonceSize()
+
+	ciphertext, err := ioutil.ReadAll(r)
+	if len(ciphertext) < nonceSize {
+		return
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err = gcm.Open(nil, nonce, ciphertext, nil)
+	return
 }
 
 func taskHandler(m RequestMessage) error {

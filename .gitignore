@@ -15,3 +15,9 @@
 # vendor/
 
 .idea
+
+# key file
+.key
+
+# binary file
+node/agent
