@@ -65,6 +65,21 @@ func Experiment(ctx context.Context, nodesList []string) {
 		}(i, node)
 	}
 	wg01.Wait()
+
+	for i, node := range nodesList {
+		wg01.Add(1)
+
+		go func(i int, node string) {
+			defer wg01.Done()
+			m := messaging.RequestMessage{}
+			err := postCall("swarmdisconnect", node, m)
+			if err != nil {
+				log.Println("swarmdisconnect", node, err)
+			}
+		}(i, node)
+	}
+	wg01.Wait()
+
 }
 
 func postCall(cmd string, node string, m messaging.RequestMessage) error {

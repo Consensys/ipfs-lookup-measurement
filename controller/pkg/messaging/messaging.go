@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -112,8 +113,24 @@ func taskHandler(m RequestMessage) error {
 		return publish(m)
 	case "lookup":
 		return lookup(m)
+	case "swarmdisconnect":
+		return swarmDisconnect()
 	}
 	return errors.New("command is invalid")
+}
+
+func swarmDisconnect() error {
+	ipfs := os.Getenv("IPFS")
+	if ipfs == "" {
+		ipfs = "/app/go-ipfs/cmd/ipfs/ipfs"
+	}
+	cmdLine := fmt.Sprintf("%s swarm peers| xargs %s swarm disconnect", ipfs, ipfs)
+	out, err := exec.Command("sh", "-c", cmdLine).Output()
+	log.Print(string(out))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func publish(m RequestMessage) error {
