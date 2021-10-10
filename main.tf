@@ -19,7 +19,7 @@ resource "aws_instance" "ipfs-testing-monitor" {
     Name = "ipfs-testing-monitor"
   }
   security_groups = ["security_ipfs_testing_monitor"]
-  user_data = <<-EOF
+  user_data       = <<-EOF
     #!/bin/sh
     sudo apt-get update
     sudo apt install -y unzip
