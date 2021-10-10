@@ -13,4 +13,7 @@
 
 # or
 ./controller -l <nodes list file>
+
+# or repeat test every X seconds
+./controller -l <nodes list file> -i <interval in seconds>
 ```
