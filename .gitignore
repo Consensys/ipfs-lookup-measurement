@@ -16,4 +16,4 @@
 
 .idea
 .terraform*
-*.tfstate
+*.tfstate*
