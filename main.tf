@@ -1,4 +1,3 @@
-# use github.com/fussion-suite/ipfs-cluster-aws instead
 terraform {
   required_providers {
     aws = {
@@ -10,68 +9,52 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-2"
+  region = "ap-southeast-2"
 }
 
-resource "aws_vpc" "ipfs-vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name = "ipfs-pegasys"
-  }
-}
-
-resource "aws_subnet" "ipfs-subnet" {
-  cidr_block = "10.0.1.0/24"
-  vpc_id     = aws_vpc.ipfs-vpc.id
-  tags = {
-    Name = "ipfs-pegasys"
-  }
-}
-
-resource "aws_instance" "node1" {
-  ami = "ami-07738c5c0ee584ed1"
+resource "aws_instance" "ipfs-testing-monitor" {
+  ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-pegasys"
+    Name = "ipfs-testing-monitor"
   }
-  subnet_id = aws_subnet.ipfs-subnet.id
+  security_groups = ["security_ipfs_testing_monitor"]
 }
 
-resource "aws_instance" "node2" {
-  ami = "ami-07738c5c0ee584ed1"
-  instance_type = "t2.small"
+resource "aws_security_group" "security_ipfs_testing_monitor" {
+  name        = "security_ipfs_testing_monitor"
+  description = "security group for ipfs testing monitor"
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3100
+    to_port     = 3100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name = "ipfs-pegasys"
+    Name = "security_ipfs_testing_monitor"
   }
-  subnet_id = aws_subnet.ipfs-subnet.id
 }
-
-resource "aws_instance" "node3" {
-  ami = "ami-07738c5c0ee584ed1"
-  instance_type = "t2.small"
-  tags = {
-    Name = "ipfs-pegasys"
-  }
-  subnet_id = aws_subnet.ipfs-subnet.id
-}
-
-
-
-## don't have permission
-#resource "aws_budgets_budget" "ec2" {
-#  name              = "budget-ec2-monthly"
-#  budget_type       = "COST"
-#  limit_amount      = "500"
-#  limit_unit        = "USD"
-#  time_period_end   = "2021-10-30_00:00"
-#  time_period_start = "2021-09-28_00:00"
-#  time_unit         = "MONTHLY"
-#
-#  notification {
-#    comparison_operator        = "GREATER_THAN"
-#    threshold                  = 100
-#    threshold_type             = "PERCENTAGE"
-#    notification_type          = "FORECASTED"
-#    subscriber_email_addresses = ["igor.zenyuk@gmail.com"]
-#  }
-#}
