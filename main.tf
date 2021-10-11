@@ -29,7 +29,7 @@ resource "aws_instance" "ipfs-testing-monitor" {
     wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/monitor/grafana-datasources.yml
     wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/monitor/grafana-dashboards.yml
     wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/monitor/ipfs-dashboard.json
-    unzip loki-linux-amd64.zip -y
+    unzip loki-linux-amd64.zip
     tar -zxvf grafana-8.1.5.linux-amd64.tar.gz
     mv grafana-datasources.yml ./grafana-8.1.5/conf/provisioning/datasources/datasources.yml
     mv grafana-dashboards.yml ./grafana-8.1.5/conf/provisioning/dashboards/dashboards.yml
