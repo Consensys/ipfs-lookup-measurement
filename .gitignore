@@ -15,6 +15,8 @@
 # vendor/
 
 .idea
+.terraform*
+*.tfstate*
 
 # key file
 .key

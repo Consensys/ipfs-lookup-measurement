@@ -1,4 +1,3 @@
-# use github.com/fussion-suite/ipfs-cluster-aws instead
 terraform {
   required_providers {
     aws = {
@@ -10,68 +9,158 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-2"
+  region = "ap-southeast-2"
 }
 
-resource "aws_vpc" "ipfs-vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name = "ipfs-pegasys"
-  }
-}
-
-resource "aws_subnet" "ipfs-subnet" {
-  cidr_block = "10.0.1.0/24"
-  vpc_id     = aws_vpc.ipfs-vpc.id
-  tags = {
-    Name = "ipfs-pegasys"
-  }
-}
-
-resource "aws_instance" "node1" {
-  ami = "ami-07738c5c0ee584ed1"
+resource "aws_instance" "ipfs-testing-monitor" {
+  ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-pegasys"
+    Name = "ipfs-testing-monitor"
   }
-  subnet_id = aws_subnet.ipfs-subnet.id
+  security_groups = ["security_ipfs_testing_monitor"]
+  user_data       = <<-EOF
+    #!/bin/sh
+    cd /home/ubuntu/
+    sudo apt-get update
+    sudo apt install -y unzip
+    wget https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
+    wget https://dl.grafana.com/oss/release/grafana-8.1.5.linux-amd64.tar.gz
+    wget https://raw.githubusercontent.com/grafana/loki/v2.3.0/cmd/loki/loki-local-config.yaml
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/monitor/grafana-datasources.yml
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/monitor/grafana-dashboards.yml
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/monitor/ipfs-dashboard.json
+    unzip loki-linux-amd64.zip
+    tar -zxvf grafana-8.1.5.linux-amd64.tar.gz
+    mv grafana-datasources.yml ./grafana-8.1.5/conf/provisioning/datasources/datasources.yml
+    mv grafana-dashboards.yml ./grafana-8.1.5/conf/provisioning/dashboards/dashboards.yml
+    sudo mkdir --parents /var/lib/grafana/dashboards
+    mv ipfs-dashboard.json /var/lib/grafana/dashboards/
+    nohup ./loki-linux-amd64 -config.file=loki-local-config.yaml &
+    cd ./grafana-8.1.5/bin
+    nohup ./grafana-server &
+  EOF
 }
 
-resource "aws_instance" "node2" {
-  ami = "ami-07738c5c0ee584ed1"
+resource "aws_instance" "ipfs-testing-node-1" {
+  ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-pegasys"
+    Name = "ipfs-testing-node"
   }
-  subnet_id = aws_subnet.ipfs-subnet.id
+  security_groups = ["security_ipfs_testing_node"]
+  user_data       = <<-EOF
+    #!/bin/sh
+    cd /home/ubuntu/
+    sudo apt-get update
+    sudo apt install -y unzip git make build-essential
+    wget https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
+    wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/node/promtail-cloud-config.yaml
+    unzip ./promtail-linux-amd64.zip
+    sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+    mkdir /home/ubuntu/go
+    export HOME=/home/ubuntu
+    export GOPATH=/home/ubuntu/go
+    export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+    git clone https://github.com/wcgcyx/go-libp2p-kad-dht.git
+    cd go-libp2p-kad-dht
+    git checkout more-logging
+    cd ..
+    git clone https://github.com/wcgcyx/go-ipfs.git
+    cd go-ipfs
+    git checkout more-logging
+    echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    make build > buildLog.txt 2>&1
+    cd ..
+    mkdir ./ipfs-tests/
+    export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    echo "      host: node1" >> ./promtail-cloud-config.yaml
+    echo "clients:" >> ./promtail-cloud-config.yaml
+    echo "  - url: http://$IP:3100/loki/api/v1/push" >> ./promtail-cloud-config.yaml
+    nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
+    ./go-ipfs/cmd/ipfs/ipfs init
+    nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
+  EOF
 }
 
-resource "aws_instance" "node3" {
-  ami = "ami-07738c5c0ee584ed1"
-  instance_type = "t2.small"
+resource "aws_security_group" "security_ipfs_testing_monitor" {
+  name        = "security_ipfs_testing_monitor"
+  description = "security group for ipfs testing monitor"
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3100
+    to_port     = 3100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name = "ipfs-pegasys"
+    Name = "security_ipfs_testing_monitor"
   }
-  subnet_id = aws_subnet.ipfs-subnet.id
 }
 
+resource "aws_security_group" "security_ipfs_testing_node" {
+  name        = "security_ipfs_testing_node"
+  description = "security group for ipfs testing node"
 
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
-## don't have permission
-#resource "aws_budgets_budget" "ec2" {
-#  name              = "budget-ec2-monthly"
-#  budget_type       = "COST"
-#  limit_amount      = "500"
-#  limit_unit        = "USD"
-#  time_period_end   = "2021-10-30_00:00"
-#  time_period_start = "2021-09-28_00:00"
-#  time_unit         = "MONTHLY"
-#
-#  notification {
-#    comparison_operator        = "GREATER_THAN"
-#    threshold                  = 100
-#    threshold_type             = "PERCENTAGE"
-#    notification_type          = "FORECASTED"
-#    subscriber_email_addresses = ["igor.zenyuk@gmail.com"]
-#  }
-#}
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 4001
+    to_port     = 4001
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 4001
+    to_port     = 4001
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3030
+    to_port     = 3030
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "security_ipfs_testing_node"
+  }
+}
