@@ -21,65 +21,54 @@ import (
 
 // Experiment publish message from one node, and lookup from all other nodes
 func Experiment(ctx context.Context, nodesList []string) {
-	var wg01 sync.WaitGroup
 	for i, node := range nodesList {
-		wg01.Add(1)
+		// publish string from nodes[i]
+		m := messaging.RequestMessage{}
+		m.IntOption1 = 3
+		m.StrOption1 = fmt.Sprintf("node=%d,time=%v,key=1", i, time.Now())
 
-		go func(i int, node string) {
-			defer wg01.Done()
+		err := postCall("publish", node, m)
+		if err != nil {
+			log.Println(node, err)
+			return
+		}
+		log.Println("publish", node)
 
-			// publish string from nodes[i]
-			m := messaging.RequestMessage{}
-			m.IntOption1 = 3
-			m.StrOption1 = fmt.Sprintf("node=%d,time=%v,key=1", i, time.Now())
+		// lookup on all nodes except nodes[i]
+		var wg sync.WaitGroup
+		for j, lookupNode := range nodesList {
+			wg.Add(1)
 
-			err := postCall("publish", node, m)
-			if err != nil {
-				log.Println(node, err)
-				return
-			}
-			log.Println("publish", node)
+			go func(i int, j int, node string, lookupNode string) {
+				defer wg.Done()
 
-			// lookup on all nodes except nodes[i]
-			var wg02 sync.WaitGroup
-			for j, lookupNode := range nodesList {
-				wg02.Add(1)
+				if i == j {
+					return
+				}
+				startAt := time.Now()
+				err = postCall("lookup", node, m)
+				if err != nil {
+					log.Println(lookupNode, err)
+					return
+				}
+				log.Printf("lookup put=%v lookup=%v elapsed=%v i=%d j=%d\n", node, lookupNode, time.Since(startAt), i, j)
+			}(i, j, node, lookupNode)
+		}
+		wg.Wait()
 
-				go func(i int, j int, node string, lookupNode string) {
-					defer wg02.Done()
+		for j, lookupNode := range nodesList {
+			wg.Add(1)
 
-					if i == j {
-						return
-					}
-					startAt := time.Now()
-					err = postCall("lookup", node, m)
-					if err != nil {
-						log.Println(lookupNode, err)
-						return
-					}
-					log.Printf("lookup put=%v lookup=%v elapsed=%v i=%d j=%d\n", node, lookupNode, time.Since(startAt), i, j)
-				}(i, j, node, lookupNode)
-			}
-			wg02.Wait()
-
-		}(i, node)
+			go func(i int, j int, node string, lookupNode string) {
+				defer wg.Done()
+				err = postCall("swarmdisconnect", lookupNode, m)
+				if err != nil {
+					log.Println("swarmdisconnect", lookupNode, err)
+				}
+			}(i, j, node, lookupNode)
+		}
+		wg.Wait()
 	}
-	wg01.Wait()
-
-	for i, node := range nodesList {
-		wg01.Add(1)
-
-		go func(i int, node string) {
-			defer wg01.Done()
-			m := messaging.RequestMessage{}
-			err := postCall("swarmdisconnect", node, m)
-			if err != nil {
-				log.Println("swarmdisconnect", node, err)
-			}
-		}(i, node)
-	}
-	wg01.Wait()
-
 }
 
 func postCall(cmd string, node string, m messaging.RequestMessage) error {
