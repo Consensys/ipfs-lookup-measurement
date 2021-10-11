@@ -12,4 +12,4 @@ scrape_configs:
       - localhost
     labels:
       job: ipfslogs
-      __path__: /app/all.log
+      __path__: ~/all.log
