@@ -114,24 +114,66 @@ func taskHandler(m RequestMessage) error {
 	case "lookup":
 		return lookup(m)
 	case "swarmdisconnect":
-		return swarmDisconnect()
+		return swarmDisconnect(m)
 	}
 	return errors.New("command is invalid")
 }
 
-func swarmDisconnect() error {
+func swarmDisconnect(m RequestMessage) error {
+	sh := api.NewLocalShell()
+	if sh == nil {
+		return errors.New("error on connecting to local ipfs")
+	}
+	sh.SetTimeout(20 * time.Second)
+	msg := strings.Repeat(m.StrOption1, m.IntOption1)
+
+	// get cid
+	if msg == "" {
+		return errors.New("empty string for ipfs call")
+	}
+	cid, err := sh.Add(strings.NewReader(msg), api.AddOpts(api.OnlyHash(true)))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	ipfs := os.Getenv("IPFS")
 	if ipfs == "" {
 		ipfs = "/app/go-ipfs/cmd/ipfs/ipfs"
 	}
-	cmdLine := fmt.Sprintf("%s swarm peers| xargs %s swarm disconnect", ipfs, ipfs)
-	out, err := exec.Command("sh", "-c", cmdLine).Output()
+
+	cmdLine := fmt.Sprintf("%s pin rm %s; %s repo gc", ipfs, cid, ipfs)
+	out, err := exec.Command("sh", "-xc", cmdLine).CombinedOutput()
+	log.Print(string(out))
+	if err != nil {
+		log.Println(err)
+	}
+
+	cmdLine = fmt.Sprintf("%s swarm peers| xargs %s swarm disconnect", ipfs, ipfs)
+	out, err = exec.Command("sh", "-xc", cmdLine).CombinedOutput()
 	log.Print(string(out))
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
+// func swarmDisconnect2() error {
+// 	sh := api.NewLocalShell()
+// 	if sh == nil {
+// 		return errors.New("error on connecting to local ipfs")
+// 	}
+// 	sh.SetTimeout(20 * time.Second)
+// 	ctx := context.Background()
+// 	swarm, err := sh.SwarmPeers(ctx)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	for _, node := range swarm.Peers {
+// 		err = sh.Request("swarm/disconnect", node.Addr).Exec(ctx, nil)
+// 	}
+// 	return nil
+// }
 
 func publish(m RequestMessage) error {
 	sh := api.NewLocalShell()
