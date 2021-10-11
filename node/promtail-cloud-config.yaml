@@ -12,4 +12,4 @@ scrape_configs:
       - localhost
     labels:
       job: ipfslogs
-      __path__: ~/all.log
+      __path__: /home/ubuntu/all.log
