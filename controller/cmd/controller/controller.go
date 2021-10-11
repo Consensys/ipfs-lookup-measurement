@@ -3,9 +3,8 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
-	"os"
+	"time"
 
 	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/config"
 	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/simplenode"
@@ -16,25 +15,18 @@ func main() {
 
 	ctx := context.Background()
 
-	simpleCmd := flag.NewFlagSet("simple", flag.ExitOnError)
-	simpleNodesFile := simpleCmd.String("l", "nodes-list.out", "nodes list file")
+	simpleNodesFile := flag.String("l", "nodes-list.out", "nodes list file")
+	intervalSeconds := flag.Int("i", 0, "interval between each test")
 
-	if len(os.Args) < 2 {
-		subCommandUsage()
-	}
+	flag.Parse()
+	nodesList := config.GetNodesList(*simpleNodesFile)
 
-	switch os.Args[1] {
-	case "simple":
-		simpleCmd.Parse(os.Args[2:])
-		nodesList := config.GetNodesList(*simpleNodesFile)
+	for {
 		simplenode.Experiment(ctx, nodesList)
-	default:
-		subCommandUsage()
+		log.Println("one test is done")
+		if *intervalSeconds == 0 {
+			break
+		}
+		time.Sleep(time.Duration(*intervalSeconds) * time.Second)
 	}
-
-}
-
-func subCommandUsage() {
-	fmt.Println("expected 'simple' or 'dht' subcommands")
-	os.Exit(1)
 }

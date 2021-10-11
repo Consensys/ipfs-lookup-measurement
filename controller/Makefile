@@ -1,11 +1,14 @@
 build controller : cmd/controller/*.go pkg/*/*.go
 	go build cmd/controller/*
 
-nodes-list.out :
-	printf " localhost:5001 \n localhost:5001 \n localhost:5001 \n localhost:5001 \n " > nodes-list.out
+agent: cmd/agent/*.go pkg/*/*.go
+	go build cmd/agent/*
 
-itest: nodes-list.out controller 
-	./controller simple -l nodes-list.out
+nodes-list.out :
+	printf " http://localhost:3031 \n http://localhost:3032 \n http://localhost:3033 \n http://localhost:3034 \n http://localhost:3035 \n " > nodes-list.out
+
+itest: nodes-list.out controller agent
+	./controller -l nodes-list.out
 
 utest:
 	go test -v ./...

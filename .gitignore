@@ -17,3 +17,9 @@
 .idea
 .terraform*
 *.tfstate*
+
+# key file
+.key
+
+# binary file
+node/agent
