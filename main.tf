@@ -56,7 +56,7 @@ resource "aws_instance" "ipfs-testing-node-1" {
     sudo apt install -y unzip git make build-essential
     wget https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
     wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
-    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/grafana-loki/node/promtail-cloud-config.yaml
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/node/promtail-cloud-config.yaml
     unzip ./promtail-linux-amd64.zip
     sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
     mkdir /home/ubuntu/go
