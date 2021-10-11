@@ -154,8 +154,8 @@ resource "aws_security_group" "security_ipfs_testing_node" {
   }
 
   ingress {
-    from_port   = 9010
-    to_port     = 9010
+    from_port   = 3030
+    to_port     = 3030
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
