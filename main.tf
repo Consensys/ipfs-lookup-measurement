@@ -21,6 +21,7 @@ resource "aws_instance" "ipfs-testing-monitor" {
   security_groups = ["security_ipfs_testing_monitor"]
   user_data       = <<-EOF
     #!/bin/sh
+    cd /home/ubuntu/
     sudo apt-get update
     sudo apt install -y unzip
     wget https://github.com/grafana/loki/releases/download/v2.3.0/loki-linux-amd64.zip
