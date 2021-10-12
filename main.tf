@@ -92,6 +92,206 @@ resource "aws_instance" "ipfs-testing-node-1" {
   EOF
 }
 
+resource "aws_instance" "ipfs-testing-node-2" {
+  ami           = "ami-0567f647e75c7bc05"
+  instance_type = "t2.small"
+  tags = {
+    Name = "ipfs-testing-node"
+  }
+  security_groups = ["security_ipfs_testing_node"]
+  user_data       = <<-EOF
+    #!/bin/sh
+    cd /home/ubuntu/
+    sudo apt-get update
+    sudo apt install -y unzip git make build-essential
+    wget https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
+    wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/node/promtail-cloud-config.yaml
+    unzip ./promtail-linux-amd64.zip
+    sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+    mkdir /home/ubuntu/go
+    export HOME=/home/ubuntu
+    export GOPATH=/home/ubuntu/go
+    export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+    git clone https://github.com/ConsenSys/ipfs-lookup-measurement.git
+    cd ipfs-lookup-measurement
+    cd controller
+    make agent
+    cd ..
+    cd ..
+    git clone https://github.com/wcgcyx/go-libp2p-kad-dht.git
+    cd go-libp2p-kad-dht
+    git checkout more-logging
+    cd ..
+    git clone https://github.com/wcgcyx/go-ipfs.git
+    cd go-ipfs
+    git checkout more-logging
+    echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    make build > buildLog.txt 2>&1
+    cd ..
+    mkdir ./ipfs-tests/
+    export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    echo "      host: node2" >> ./promtail-cloud-config.yaml
+    echo "clients:" >> ./promtail-cloud-config.yaml
+    echo "  - url: http://$IP:3100/loki/api/v1/push" >> ./promtail-cloud-config.yaml
+    nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
+    ./go-ipfs/cmd/ipfs/ipfs init
+    nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
+    export PERFORMANCE_TEST_DIR=./ipfs-tests/
+    nohup ./ipfs-lookup-measurement/controller/agent &
+  EOF
+}
+
+resource "aws_instance" "ipfs-testing-node-3" {
+  ami           = "ami-0567f647e75c7bc05"
+  instance_type = "t2.small"
+  tags = {
+    Name = "ipfs-testing-node"
+  }
+  security_groups = ["security_ipfs_testing_node"]
+  user_data       = <<-EOF
+    #!/bin/sh
+    cd /home/ubuntu/
+    sudo apt-get update
+    sudo apt install -y unzip git make build-essential
+    wget https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
+    wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/node/promtail-cloud-config.yaml
+    unzip ./promtail-linux-amd64.zip
+    sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+    mkdir /home/ubuntu/go
+    export HOME=/home/ubuntu
+    export GOPATH=/home/ubuntu/go
+    export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+    git clone https://github.com/ConsenSys/ipfs-lookup-measurement.git
+    cd ipfs-lookup-measurement
+    cd controller
+    make agent
+    cd ..
+    cd ..
+    git clone https://github.com/wcgcyx/go-libp2p-kad-dht.git
+    cd go-libp2p-kad-dht
+    git checkout more-logging
+    cd ..
+    git clone https://github.com/wcgcyx/go-ipfs.git
+    cd go-ipfs
+    git checkout more-logging
+    echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    make build > buildLog.txt 2>&1
+    cd ..
+    mkdir ./ipfs-tests/
+    export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    echo "      host: node3" >> ./promtail-cloud-config.yaml
+    echo "clients:" >> ./promtail-cloud-config.yaml
+    echo "  - url: http://$IP:3100/loki/api/v1/push" >> ./promtail-cloud-config.yaml
+    nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
+    ./go-ipfs/cmd/ipfs/ipfs init
+    nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
+    export PERFORMANCE_TEST_DIR=./ipfs-tests/
+    nohup ./ipfs-lookup-measurement/controller/agent &
+  EOF
+}
+
+resource "aws_instance" "ipfs-testing-node-4" {
+  ami           = "ami-0567f647e75c7bc05"
+  instance_type = "t2.small"
+  tags = {
+    Name = "ipfs-testing-node"
+  }
+  security_groups = ["security_ipfs_testing_node"]
+  user_data       = <<-EOF
+    #!/bin/sh
+    cd /home/ubuntu/
+    sudo apt-get update
+    sudo apt install -y unzip git make build-essential
+    wget https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
+    wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/node/promtail-cloud-config.yaml
+    unzip ./promtail-linux-amd64.zip
+    sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+    mkdir /home/ubuntu/go
+    export HOME=/home/ubuntu
+    export GOPATH=/home/ubuntu/go
+    export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+    git clone https://github.com/ConsenSys/ipfs-lookup-measurement.git
+    cd ipfs-lookup-measurement
+    cd controller
+    make agent
+    cd ..
+    cd ..
+    git clone https://github.com/wcgcyx/go-libp2p-kad-dht.git
+    cd go-libp2p-kad-dht
+    git checkout more-logging
+    cd ..
+    git clone https://github.com/wcgcyx/go-ipfs.git
+    cd go-ipfs
+    git checkout more-logging
+    echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    make build > buildLog.txt 2>&1
+    cd ..
+    mkdir ./ipfs-tests/
+    export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    echo "      host: node4" >> ./promtail-cloud-config.yaml
+    echo "clients:" >> ./promtail-cloud-config.yaml
+    echo "  - url: http://$IP:3100/loki/api/v1/push" >> ./promtail-cloud-config.yaml
+    nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
+    ./go-ipfs/cmd/ipfs/ipfs init
+    nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
+    export PERFORMANCE_TEST_DIR=./ipfs-tests/
+    nohup ./ipfs-lookup-measurement/controller/agent &
+  EOF
+}
+
+resource "aws_instance" "ipfs-testing-node-5" {
+  ami           = "ami-0567f647e75c7bc05"
+  instance_type = "t2.small"
+  tags = {
+    Name = "ipfs-testing-node"
+  }
+  security_groups = ["security_ipfs_testing_node"]
+  user_data       = <<-EOF
+    #!/bin/sh
+    cd /home/ubuntu/
+    sudo apt-get update
+    sudo apt install -y unzip git make build-essential
+    wget https://github.com/grafana/loki/releases/download/v2.3.0/promtail-linux-amd64.zip
+    wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+    wget https://raw.githubusercontent.com/ConsenSys/ipfs-lookup-measurement/main/node/promtail-cloud-config.yaml
+    unzip ./promtail-linux-amd64.zip
+    sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+    mkdir /home/ubuntu/go
+    export HOME=/home/ubuntu
+    export GOPATH=/home/ubuntu/go
+    export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+    git clone https://github.com/ConsenSys/ipfs-lookup-measurement.git
+    cd ipfs-lookup-measurement
+    cd controller
+    make agent
+    cd ..
+    cd ..
+    git clone https://github.com/wcgcyx/go-libp2p-kad-dht.git
+    cd go-libp2p-kad-dht
+    git checkout more-logging
+    cd ..
+    git clone https://github.com/wcgcyx/go-ipfs.git
+    cd go-ipfs
+    git checkout more-logging
+    echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    make build > buildLog.txt 2>&1
+    cd ..
+    mkdir ./ipfs-tests/
+    export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    echo "      host: node5" >> ./promtail-cloud-config.yaml
+    echo "clients:" >> ./promtail-cloud-config.yaml
+    echo "  - url: http://$IP:3100/loki/api/v1/push" >> ./promtail-cloud-config.yaml
+    nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
+    ./go-ipfs/cmd/ipfs/ipfs init
+    nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
+    export PERFORMANCE_TEST_DIR=./ipfs-tests/
+    nohup ./ipfs-lookup-measurement/controller/agent &
+  EOF
+}
+
 resource "aws_security_group" "security_ipfs_testing_monitor" {
   name        = "security_ipfs_testing_monitor"
   description = "security group for ipfs testing monitor"
