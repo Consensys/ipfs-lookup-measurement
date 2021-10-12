@@ -241,6 +241,13 @@ func lookup(m RequestMessage) error {
 		return err
 	}
 
+	// write cid to a file
+	err = os.WriteFile(fmt.Sprintf("lookup-%v", cid), []byte(msg), 0644)
+	if err != nil {
+		log.Println(err, cid)
+		return err
+	}
+
 	ipfs := os.Getenv("IPFS")
 	if ipfs == "" {
 		ipfs = "/app/go-ipfs/cmd/ipfs/ipfs"
