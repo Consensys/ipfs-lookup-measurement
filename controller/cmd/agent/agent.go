@@ -20,6 +20,9 @@ func main() {
 		ipfsTestFolder = "/ipfs-tests"
 	}
 
+	baseDir := os.Getenv("IPFS_PATH")
+	fmt.Println("basedir is", baseDir)
+
 	err := os.Chdir(ipfsTestFolder)
 	if err != nil {
 		log.Fatalln(ipfsTestFolder, err)
