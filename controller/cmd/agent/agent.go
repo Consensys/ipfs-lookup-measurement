@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/messaging"
+
+	api "github.com/ipfs/go-ipfs-api"
 )
 
 func main() {
@@ -24,6 +26,11 @@ func main() {
 
 	cmd := flag.NewFlagSet("simple", flag.ExitOnError)
 	portNumStr := cmd.String("p", "3030", "port number")
+
+	sh := api.NewLocalShell()
+	if sh == nil {
+		log.Println("error getting local shell")
+	}
 
 	log.Println("start listening at:", *portNumStr)
 
