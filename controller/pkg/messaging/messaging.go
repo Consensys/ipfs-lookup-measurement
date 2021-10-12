@@ -203,7 +203,7 @@ func publish(m RequestMessage) error {
 	}
 
 	// write cid to a file
-	err = os.WriteFile(cid, []byte(msg), 0644)
+	err = os.WriteFile(fmt.Sprintf("provide-%v", cid), []byte(msg), 0644)
 	if err != nil {
 		log.Println(err, cid)
 		return err
@@ -239,7 +239,7 @@ func lookup(m RequestMessage) error {
 	}
 
 	// write cid to a file
-	err = os.WriteFile(cid, []byte(msg), 0644)
+	err = os.WriteFile(fmt.Sprintf("lookup-%v", cid), []byte(msg), 0644)
 	if err != nil {
 		log.Println(err, cid)
 		return err
@@ -278,13 +278,16 @@ func check(m RequestMessage) error {
 	}
 
 	// Check
-	if _, err := os.Stat(fmt.Sprintf("ok-%v", cid)); err != nil {
+	_, err1 := os.Stat(fmt.Sprintf("ok-provide-%v", cid))
+	_, err2 := os.Stat(fmt.Sprintf("ok-lookup-%v", cid))
+	if err1 != nil && err2 != nil {
 		log.Printf("not existing: %v", cid)
 		return fmt.Errorf("not existing")
 	}
 
 	log.Println("existed.")
-	os.Remove(fmt.Sprintf("ok-%v", cid))
+	os.Remove(fmt.Sprintf("ok-provide-%v", cid))
+	os.Remove(fmt.Sprintf("ok-lookup-%v", cid))
 
 	return nil
 }
