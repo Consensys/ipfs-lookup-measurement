@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -29,7 +30,9 @@ func main() {
 
 	sh := api.NewLocalShell()
 	if sh == nil {
-		log.Println("error getting local shell")
+		fmt.Println("error getting local shell")
+	} else {
+		fmt.Println("good at getting local shell")
 	}
 
 	log.Println("start listening at:", *portNumStr)
