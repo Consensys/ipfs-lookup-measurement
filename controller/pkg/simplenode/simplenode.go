@@ -68,6 +68,7 @@ func Experiment(ctx context.Context, nodesList []string) {
 			}(i, j, node, lookupNode)
 		}
 		wg.Wait()
+		break // For now just do 1 experiment
 	}
 }
 
