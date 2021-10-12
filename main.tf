@@ -50,7 +50,7 @@ resource "aws_instance" "ipfs-testing-node-1" {
   ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-testing-node"
+    Name = "ipfs-testing-node-1"
   }
   security_groups = ["security_ipfs_testing_node"]
   user_data       = <<-EOF
@@ -86,6 +86,9 @@ resource "aws_instance" "ipfs-testing-node-1" {
     mkdir ./ipfs-tests/
     export KEY="${var.KEY}"
     export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    export PERFORMANCE_TEST_DIR=/home/ubuntu/ipfs-tests/
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     echo "$KEY" > ./ipfs-tests/.key
     echo "      host: node1" >> ./promtail-cloud-config.yaml
     echo "clients:" >> ./promtail-cloud-config.yaml
@@ -93,9 +96,6 @@ resource "aws_instance" "ipfs-testing-node-1" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    export IPFS_PATH=/home/ubuntu/.ipfs
-    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -104,7 +104,7 @@ resource "aws_instance" "ipfs-testing-node-2" {
   ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-testing-node"
+    Name = "ipfs-testing-node-2"
   }
   security_groups = ["security_ipfs_testing_node"]
   user_data       = <<-EOF
@@ -140,6 +140,9 @@ resource "aws_instance" "ipfs-testing-node-2" {
     mkdir ./ipfs-tests/
     export KEY="${var.KEY}"
     export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    export PERFORMANCE_TEST_DIR=/home/ubuntu/ipfs-tests/
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     echo "$KEY" > ./ipfs-tests/.key
     echo "      host: node2" >> ./promtail-cloud-config.yaml
     echo "clients:" >> ./promtail-cloud-config.yaml
@@ -147,9 +150,6 @@ resource "aws_instance" "ipfs-testing-node-2" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    export IPFS_PATH=/home/ubuntu/.ipfs
-    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -158,7 +158,7 @@ resource "aws_instance" "ipfs-testing-node-3" {
   ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-testing-node"
+    Name = "ipfs-testing-node-3"
   }
   security_groups = ["security_ipfs_testing_node"]
   user_data       = <<-EOF
@@ -194,6 +194,9 @@ resource "aws_instance" "ipfs-testing-node-3" {
     mkdir ./ipfs-tests/
     export KEY="${var.KEY}"
     export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    export PERFORMANCE_TEST_DIR=/home/ubuntu/ipfs-tests/
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     echo "$KEY" > ./ipfs-tests/.key
     echo "      host: node3" >> ./promtail-cloud-config.yaml
     echo "clients:" >> ./promtail-cloud-config.yaml
@@ -201,9 +204,6 @@ resource "aws_instance" "ipfs-testing-node-3" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    export IPFS_PATH=/home/ubuntu/.ipfs
-    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -212,7 +212,7 @@ resource "aws_instance" "ipfs-testing-node-4" {
   ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-testing-node"
+    Name = "ipfs-testing-node-4"
   }
   security_groups = ["security_ipfs_testing_node"]
   user_data       = <<-EOF
@@ -248,6 +248,9 @@ resource "aws_instance" "ipfs-testing-node-4" {
     mkdir ./ipfs-tests/
     export KEY="${var.KEY}"
     export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    export PERFORMANCE_TEST_DIR=/home/ubuntu/ipfs-tests/
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     echo "$KEY" > ./ipfs-tests/.key
     echo "      host: node4" >> ./promtail-cloud-config.yaml
     echo "clients:" >> ./promtail-cloud-config.yaml
@@ -255,9 +258,6 @@ resource "aws_instance" "ipfs-testing-node-4" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    export IPFS_PATH=/home/ubuntu/.ipfs
-    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -266,7 +266,7 @@ resource "aws_instance" "ipfs-testing-node-5" {
   ami           = "ami-0567f647e75c7bc05"
   instance_type = "t2.small"
   tags = {
-    Name = "ipfs-testing-node"
+    Name = "ipfs-testing-node-5"
   }
   security_groups = ["security_ipfs_testing_node"]
   user_data       = <<-EOF
@@ -302,6 +302,9 @@ resource "aws_instance" "ipfs-testing-node-5" {
     mkdir ./ipfs-tests/
     export KEY="${var.KEY}"
     export IP="${aws_instance.ipfs-testing-monitor.public_ip}"
+    export PERFORMANCE_TEST_DIR=/home/ubuntu/ipfs-tests/
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     echo "$KEY" > ./ipfs-tests/.key
     echo "      host: node5" >> ./promtail-cloud-config.yaml
     echo "clients:" >> ./promtail-cloud-config.yaml
@@ -309,9 +312,6 @@ resource "aws_instance" "ipfs-testing-node-5" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    export IPFS_PATH=/home/ubuntu/.ipfs
-    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
