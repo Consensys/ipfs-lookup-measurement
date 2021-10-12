@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 	"time"
 
@@ -49,6 +50,15 @@ func AgentHangler() http.Handler {
 				w.WriteHeader(http.StatusBadRequest)
 				fmt.Fprintln(w, "failed")
 				log.Println(err)
+				return
+			}
+
+			if m.Cmd == "check" {
+				if check(m) == nil {
+					w.WriteHeader(http.StatusOK)
+				} else {
+					w.WriteHeader(http.StatusFound)
+				}
 				return
 			}
 
@@ -240,5 +250,39 @@ func lookup(m RequestMessage) error {
 	// buf.ReadFrom(resp)
 	// msg = buf.String()
 	log.Println("lookup is done:", cid)
+	return nil
+}
+
+func check(m RequestMessage) error {
+	sh := api.NewLocalShell()
+	if sh == nil {
+		return errors.New("error on connecting to local ipfs")
+	}
+	sh.SetTimeout(20 * time.Second)
+	msg := strings.Repeat(m.StrOption1, m.IntOption1)
+
+	// get cid
+	if msg == "" {
+		return errors.New("empty string for ipfs call")
+	}
+	cid, err := sh.Add(strings.NewReader(msg), api.AddOpts(api.OnlyHash(true)))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Check
+	ipfsTestFolder := os.Getenv("PERFORMANCE_TEST_DIR")
+	if ipfsTestFolder == "" {
+		ipfsTestFolder = "/ipfs-tests"
+	}
+
+	if _, err := os.Stat(path.Join(ipfsTestFolder, cid)); err == nil {
+		log.Println("still existing:", path.Join(ipfsTestFolder, cid))
+		return fmt.Errorf("existing")
+	}
+
+	log.Println("not existed.")
+
 	return nil
 }
