@@ -21,11 +21,17 @@ func main() {
 	flag.Parse()
 	nodesList := config.GetNodesList(*simpleNodesFile)
 
+	publish := 0
+	max := len(nodesList) - 1
 	for {
-		simplenode.Experiment(ctx, nodesList)
+		simplenode.Experiment(ctx, publish, nodesList)
 		log.Println("one test is done")
 		if *intervalSeconds == 0 {
 			break
+		}
+		publish++
+		if publish > max {
+			publish = 0
 		}
 		time.Sleep(time.Duration(*intervalSeconds) * time.Second)
 	}

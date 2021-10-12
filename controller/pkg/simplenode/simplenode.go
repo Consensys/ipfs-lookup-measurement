@@ -20,56 +20,77 @@ import (
 )
 
 // Experiment publish message from one node, and lookup from all other nodes
-func Experiment(ctx context.Context, nodesList []string) {
-	for i, node := range nodesList {
-		// publish string from nodes[i]
-		m := messaging.RequestMessage{}
-		m.IntOption1 = 3
-		m.StrOption1 = fmt.Sprintf("node=%d,time=%v,key=1", i, time.Now())
+func Experiment(ctx context.Context, publish int, nodesList []string) {
+	// Publish string from node[publish]
+	node := nodesList[publish]
+	m := messaging.RequestMessage{}
+	m.IntOption1 = 3
+	m.StrOption1 = fmt.Sprintf("node=%d,time=%v,key=1", publish, time.Now())
 
-		err := postCall("publish", node, m)
-		if err != nil {
-			log.Println(node, err)
+	err := postCall("publish", node, m)
+	if err != nil {
+		log.Println(node, err)
+		return
+	}
+	log.Println("publish", node)
+	// Need to wait till publish is finished.
+	for i := 0; i < 30; i++ {
+		time.Sleep(5 * time.Second)
+		err = postCall("check", node, m)
+		if err == nil {
+			log.Println("publish is done")
+			break
+		}
+		if i == 29 {
+			log.Println("error in publishing.")
 			return
 		}
-		log.Println("publish", node)
-
-		// lookup on all nodes except nodes[i]
-		var wg sync.WaitGroup
-		for j, lookupNode := range nodesList {
-			wg.Add(1)
-
-			go func(i int, j int, node string, lookupNode string) {
-				defer wg.Done()
-
-				if i == j {
-					return
-				}
-				startAt := time.Now()
-				err = postCall("lookup", node, m)
-				if err != nil {
-					log.Println(lookupNode, err)
-					return
-				}
-				log.Printf("lookup put=%v lookup=%v elapsed=%v i=%d j=%d\n", node, lookupNode, time.Since(startAt), i, j)
-			}(i, j, node, lookupNode)
-		}
-		wg.Wait()
-
-		for j, lookupNode := range nodesList {
-			wg.Add(1)
-
-			go func(i int, j int, node string, lookupNode string) {
-				defer wg.Done()
-				err = postCall("swarmdisconnect", lookupNode, m)
-				if err != nil {
-					log.Println("swarmdisconnect", lookupNode, err)
-				}
-			}(i, j, node, lookupNode)
-		}
-		wg.Wait()
-		break // For now just do 1 experiment
 	}
+	// Start lookup from every other node.
+	var wg sync.WaitGroup
+	for i, lookupNode := range nodesList {
+		if i == publish {
+			return
+		}
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, lookupNode string) {
+			defer wg.Done()
+			err = postCall("lookup", lookupNode, m)
+			if err != nil {
+				log.Println(lookupNode, err)
+				return
+			}
+			// Need to wait till lookup is finished.
+			for i := 0; i < 30; i++ {
+				time.Sleep(5 * time.Second)
+				err = postCall("check", lookupNode, m)
+				if err == nil {
+					log.Println("lookup is done")
+					break
+				}
+				if i == 29 {
+					log.Println("error in lookup.")
+					return
+				}
+			}
+			log.Printf("lookup put=%v lookup=%v is done\n", node, lookupNode)
+		}(&wg, lookupNode)
+	}
+	// Wait till all lookup is finished.
+	wg.Wait()
+	// Clean
+	for _, lookupNode := range nodesList {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup, lookupNode string) {
+			defer wg.Done()
+			err = postCall("swarmdisconnect", lookupNode, m)
+			if err != nil {
+				log.Println("swarmdisconnect", lookupNode, err)
+			}
+		}(&wg, lookupNode)
+	}
+	wg.Wait()
+	log.Println("clean is done")
 }
 
 func postCall(cmd string, node string, m messaging.RequestMessage) error {
