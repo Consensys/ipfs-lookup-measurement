@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path"
 	"strings"
 	"time"
 
@@ -272,13 +271,8 @@ func check(m RequestMessage) error {
 	}
 
 	// Check
-	ipfsTestFolder := os.Getenv("PERFORMANCE_TEST_DIR")
-	if ipfsTestFolder == "" {
-		ipfsTestFolder = "/ipfs-tests"
-	}
-
-	if _, err := os.Stat(path.Join(ipfsTestFolder, cid)); err == nil {
-		log.Println("still existing:", path.Join(ipfsTestFolder, cid))
+	if _, err := os.Stat(cid); err == nil {
+		log.Printf("still existing: %v", cid)
 		return fmt.Errorf("existing")
 	}
 
