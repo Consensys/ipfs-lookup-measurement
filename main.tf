@@ -94,7 +94,8 @@ resource "aws_instance" "ipfs-testing-node-1" {
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    nohup ./ipfs-lookup-measurement/controller/agent &
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -146,7 +147,8 @@ resource "aws_instance" "ipfs-testing-node-2" {
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    nohup ./ipfs-lookup-measurement/controller/agent &
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -198,7 +200,8 @@ resource "aws_instance" "ipfs-testing-node-3" {
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    nohup ./ipfs-lookup-measurement/controller/agent &
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -250,7 +253,8 @@ resource "aws_instance" "ipfs-testing-node-4" {
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    nohup ./ipfs-lookup-measurement/controller/agent &
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -302,7 +306,8 @@ resource "aws_instance" "ipfs-testing-node-5" {
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
-    nohup ./ipfs-lookup-measurement/controller/agent &
+    export IPFS_PATH=/home/ubuntu/.ipfs
+    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
