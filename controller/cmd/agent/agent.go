@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/messaging"
 
@@ -31,11 +32,15 @@ func main() {
 	cmd := flag.NewFlagSet("simple", flag.ExitOnError)
 	portNumStr := cmd.String("p", "3030", "port number")
 
-	sh := api.NewLocalShell()
-	if sh == nil {
-		fmt.Println("error getting local shell")
-	} else {
-		fmt.Println("good at getting local shell")
+	for {
+		sh := api.NewLocalShell()
+		if sh == nil {
+			fmt.Println("error getting local shell")
+		} else {
+			fmt.Println("good at getting local shell")
+			break
+		}
+		time.Sleep(1 * time.Second)
 	}
 
 	log.Println("start listening at:", *portNumStr)
