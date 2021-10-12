@@ -162,7 +162,7 @@ func swarmDisconnect(m RequestMessage) error {
 		cmdLine = fmt.Sprintf("%s swarm peers| xargs %s swarm disconnect", ipfs, ipfs)
 		out, err = exec.Command("sh", "-xc", cmdLine).CombinedOutput()
 		log.Print(string(out))
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 	if err != nil {
 		return err
