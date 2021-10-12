@@ -95,6 +95,7 @@ resource "aws_instance" "ipfs-testing-node-1" {
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
     export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -148,6 +149,7 @@ resource "aws_instance" "ipfs-testing-node-2" {
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
     export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -201,6 +203,7 @@ resource "aws_instance" "ipfs-testing-node-3" {
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
     export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -254,6 +257,7 @@ resource "aws_instance" "ipfs-testing-node-4" {
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
     export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
@@ -307,6 +311,7 @@ resource "aws_instance" "ipfs-testing-node-5" {
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
     export PERFORMANCE_TEST_DIR=./ipfs-tests/
     export IPFS_PATH=/home/ubuntu/.ipfs
+    export IPFS=/home/ubuntu/go-ipfs/cmd/ipfs/ipfs
     nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
