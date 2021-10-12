@@ -45,12 +45,13 @@ func Experiment(ctx context.Context, publish int, nodesList []string) {
 			log.Println("error in publishing.")
 			return
 		}
+		log.Println("publish in progress...")
 	}
 	// Start lookup from every other node.
 	var wg sync.WaitGroup
 	for i, lookupNode := range nodesList {
 		if i == publish {
-			return
+			continue
 		}
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, lookupNode string) {
@@ -72,6 +73,7 @@ func Experiment(ctx context.Context, publish int, nodesList []string) {
 					log.Println("error in lookup.")
 					return
 				}
+				log.Println("lookup in progress...")
 			}
 			log.Printf("lookup put=%v lookup=%v is done\n", node, lookupNode)
 		}(&wg, lookupNode)
