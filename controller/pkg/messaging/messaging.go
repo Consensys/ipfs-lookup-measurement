@@ -238,6 +238,13 @@ func lookup(m RequestMessage) error {
 		return err
 	}
 
+	// write cid to a file
+	err = os.WriteFile(cid, []byte(msg), 0644)
+	if err != nil {
+		log.Println(err, cid)
+		return err
+	}
+
 	resp, err := sh.Cat(cid)
 	if err != nil {
 		log.Println(err)
