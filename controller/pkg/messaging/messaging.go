@@ -271,7 +271,7 @@ func check(m RequestMessage) error {
 	}
 
 	// Check
-	if _, err := os.Stat(cid); err == nil {
+	if _, err := os.Stat(fmt.Sprintf("ok-%v", cid)); err == nil {
 		log.Printf("still existing: %v", cid)
 		return fmt.Errorf("existing")
 	}
