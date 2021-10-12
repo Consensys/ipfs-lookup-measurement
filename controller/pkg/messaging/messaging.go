@@ -158,9 +158,11 @@ func swarmDisconnect(m RequestMessage) error {
 		log.Println(err)
 	}
 
-	cmdLine = fmt.Sprintf("%s swarm peers| xargs %s swarm disconnect", ipfs, ipfs)
-	out, err = exec.Command("sh", "-xc", cmdLine).CombinedOutput()
-	log.Print(string(out))
+	for i := 0; i < 10; i++ {
+		cmdLine = fmt.Sprintf("%s swarm peers| xargs %s swarm disconnect", ipfs, ipfs)
+		out, err = exec.Command("sh", "-xc", cmdLine).CombinedOutput()
+		log.Print(string(out))
+	}
 	if err != nil {
 		return err
 	}
@@ -260,6 +262,39 @@ func lookup(m RequestMessage) error {
 }
 
 func check(m RequestMessage) error {
+	sh := api.NewLocalShell()
+	if sh == nil {
+		return errors.New("error on connecting to local ipfs")
+	}
+	sh.SetTimeout(20 * time.Second)
+	msg := strings.Repeat(m.StrOption1, m.IntOption1)
+
+	// get cid
+	if msg == "" {
+		return errors.New("empty string for ipfs call")
+	}
+	cid, err := sh.Add(strings.NewReader(msg), api.AddOpts(api.OnlyHash(true)))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// Check
+	_, err1 := os.Stat(fmt.Sprintf("ok-provide-%v", cid))
+	_, err2 := os.Stat(fmt.Sprintf("ok-lookup-%v", cid))
+	if err1 != nil && err2 != nil {
+		log.Printf("not existing: %v", cid)
+		return fmt.Errorf("not existing")
+	}
+
+	log.Println("existed.")
+	os.Remove(fmt.Sprintf("ok-provide-%v", cid))
+	os.Remove(fmt.Sprintf("ok-lookup-%v", cid))
+
+	return nil
+}
+
+func getID(m RequestMessage) error {
 	sh := api.NewLocalShell()
 	if sh == nil {
 		return errors.New("error on connecting to local ipfs")
