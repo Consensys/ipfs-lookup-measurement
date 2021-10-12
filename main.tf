@@ -63,6 +63,12 @@ resource "aws_instance" "ipfs-testing-node-1" {
     export HOME=/home/ubuntu
     export GOPATH=/home/ubuntu/go
     export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+    git clone https://github.com/ConsenSys/ipfs-lookup-measurement.git
+    cd ipfs-lookup-measurement
+    cd controller
+    make agent
+    cd ..
+    cd ..
     git clone https://github.com/wcgcyx/go-libp2p-kad-dht.git
     cd go-libp2p-kad-dht
     git checkout more-logging
@@ -81,6 +87,8 @@ resource "aws_instance" "ipfs-testing-node-1" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
+    export PERFORMANCE_TEST_DIR=./ipfs-tests/
+    nohup ./ipfs-lookup-measurement/controller/agent &
   EOF
 }
 
