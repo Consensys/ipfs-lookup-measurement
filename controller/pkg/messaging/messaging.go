@@ -266,6 +266,17 @@ func lookup(m RequestMessage) error {
 		return err
 	}
 	log.Println("lookup is done:", cid)
+
+	f, err := os.OpenFile("/home/ubuntu/all.log",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
+	}
+	defer f.Close()
+	if _, err := f.WriteString(fmt.Sprintf("Retrieval for %v is finished.\n", cid)); err != nil {
+		log.Println(err)
+	}
+
 	return nil
 }
 
