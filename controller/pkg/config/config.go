@@ -22,7 +22,7 @@ func GetNodesList(nodesListFile string) []string {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		// Append line to result.
-		if line != "" || !strings.HasPrefix(line, "monitor") {
+		if line != "" && !strings.HasPrefix(line, "monitor") {
 			ip := strings.Split(line, "\"")[1]
 			result = append(result, fmt.Sprintf("http://%v:3030", ip))
 		}
