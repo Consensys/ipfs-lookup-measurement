@@ -2,6 +2,7 @@ package config
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -21,8 +22,9 @@ func GetNodesList(nodesListFile string) []string {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		// Append line to result.
-		if line != "" {
-			result = append(result, line)
+		if line != "" || !strings.HasPrefix(line, "monitor") {
+			ip := strings.Split(line, "\"")[1]
+			result = append(result, fmt.Sprintf("http://%v:3030", ip))
 		}
 	}
 
