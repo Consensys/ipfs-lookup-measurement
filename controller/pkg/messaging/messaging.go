@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	api "github.com/ipfs/go-ipfs-api"
@@ -23,6 +24,8 @@ type RequestMessage struct {
 	IntOption1 int
 	StrOption1 string
 }
+
+var syncMap sync.Map
 
 func AgentHangler() http.Handler {
 	return http.HandlerFunc(
@@ -129,45 +132,50 @@ func taskHandler(m RequestMessage) error {
 }
 
 func swarmDisconnect(m RequestMessage) error {
-	sh := api.NewLocalShell()
-	if sh == nil {
-		return errors.New("error on connecting to local ipfs")
-	}
-	sh.SetTimeout(20 * time.Second)
-	msg := strings.Repeat(m.StrOption1, m.IntOption1)
+	ipfs := getIPFS()
 
-	// get cid
-	if msg == "" {
-		return errors.New("empty string for ipfs call")
-	}
-	cid, err := sh.Add(strings.NewReader(msg), api.AddOpts(api.OnlyHash(true)))
-	if err != nil {
-		log.Println(err)
-		return err
+	for _, node := range getPeers(ipfs) {
+		if _, ok := syncMap.Load(node); ok || node == "" {
+			continue
+		}
+		cmdLine := fmt.Sprintf("%s swarm disconnect %s", ipfs, node)
+		out, _ := exec.Command("sh", "-xc", cmdLine).CombinedOutput()
+		log.Print(string(out))
 	}
 
+	return nil
+}
+
+func getIPFS() string {
 	ipfs := os.Getenv("IPFS")
 	if ipfs == "" {
 		ipfs = "/app/go-ipfs/cmd/ipfs/ipfs"
 	}
+	return ipfs
+}
 
-	cmdLine := fmt.Sprintf("%s pin rm %s; %s repo gc", ipfs, cid, ipfs)
-	out, err := exec.Command("sh", "-xc", cmdLine).CombinedOutput()
-	log.Print(string(out))
+func getPeers(ipfs string) (rtn []string) {
+	cmdLine := fmt.Sprintf("%s swarm peers", ipfs)
+	out, err := exec.Command("sh", "-xc", cmdLine).Output()
 	if err != nil {
-		log.Println(err)
+		return
 	}
+	return strings.Split(string(out), "\n")
+}
 
-	for i := 0; i < 10; i++ {
-		cmdLine = fmt.Sprintf("%s swarm peers| xargs %s swarm disconnect", ipfs, ipfs)
-		out, err = exec.Command("sh", "-xc", cmdLine).CombinedOutput()
-		log.Print(string(out))
-		time.Sleep(100 * time.Millisecond)
+func refreshPeersMap() {
+
+	syncMap.Range(func(k, v interface{}) bool {
+		syncMap.Delete(k)
+		return true
+	})
+
+	for _, node := range getPeers(getIPFS()) {
+		if node == "" {
+			continue
+		}
+		syncMap.Store(node, true)
 	}
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // func swarmDisconnect2() error {
@@ -205,6 +213,8 @@ func publish(m RequestMessage) error {
 		return err
 	}
 
+	refreshPeersMap()
+
 	// write cid to a file
 	err = os.WriteFile(fmt.Sprintf("provide-%v", cid), []byte(msg), 0644)
 	if err != nil {
@@ -241,6 +251,8 @@ func lookup(m RequestMessage) error {
 		return err
 	}
 
+	refreshPeersMap()
+
 	// write cid to a file
 	err = os.WriteFile(fmt.Sprintf("lookup-%v", cid), []byte(msg), 0644)
 	if err != nil {
@@ -248,19 +260,11 @@ func lookup(m RequestMessage) error {
 		return err
 	}
 
-	ipfs := os.Getenv("IPFS")
-	if ipfs == "" {
-		ipfs = "/app/go-ipfs/cmd/ipfs/ipfs"
-	}
-
-	cmdLine := fmt.Sprintf("%s dht findprovs %s", ipfs, cid)
-	out, err := exec.Command("sh", "-xc", cmdLine).CombinedOutput()
-	log.Print(string(out))
+	_, err = sh.Cat(cid)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-
 	log.Println("lookup is done:", cid)
 	return nil
 }
