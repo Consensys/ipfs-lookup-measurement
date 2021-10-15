@@ -55,6 +55,16 @@ func AgentHangler() http.Handler {
 				return
 			}
 
+			if m.Cmd == "id" {
+				id, err := getID()
+				if err != nil {
+					w.WriteHeader(http.StatusNotFound)
+				} else {
+					w.Write([]byte(id))
+					w.WriteHeader(http.StatusOK)
+				}
+			}
+
 			if m.Cmd == "check" {
 				if check(m) == nil {
 					w.WriteHeader(http.StatusOK)
@@ -178,6 +188,20 @@ func refreshPeersMap() {
 	}
 }
 
+func getID() (string, error) {
+	sh := api.NewLocalShell()
+	if sh == nil {
+		return "", errors.New("error on connecting to local ipfs")
+	}
+	sh.SetTimeout(20 * time.Second)
+
+	id, err := sh.ID()
+	if err != nil {
+		return "", err
+	}
+	return id.ID, nil
+}
+
 // func swarmDisconnect2() error {
 // 	sh := api.NewLocalShell()
 // 	if sh == nil {
@@ -281,39 +305,6 @@ func lookup(m RequestMessage) error {
 }
 
 func check(m RequestMessage) error {
-	sh := api.NewLocalShell()
-	if sh == nil {
-		return errors.New("error on connecting to local ipfs")
-	}
-	sh.SetTimeout(20 * time.Second)
-	msg := strings.Repeat(m.StrOption1, m.IntOption1)
-
-	// get cid
-	if msg == "" {
-		return errors.New("empty string for ipfs call")
-	}
-	cid, err := sh.Add(strings.NewReader(msg), api.AddOpts(api.OnlyHash(true)))
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	// Check
-	_, err1 := os.Stat(fmt.Sprintf("ok-provide-%v", cid))
-	_, err2 := os.Stat(fmt.Sprintf("ok-lookup-%v", cid))
-	if err1 != nil && err2 != nil {
-		log.Printf("not existing: %v", cid)
-		return fmt.Errorf("not existing")
-	}
-
-	log.Println("existed.")
-	os.Remove(fmt.Sprintf("ok-provide-%v", cid))
-	os.Remove(fmt.Sprintf("ok-lookup-%v", cid))
-
-	return nil
-}
-
-func getID(m RequestMessage) error {
 	sh := api.NewLocalShell()
 	if sh == nil {
 		return errors.New("error on connecting to local ipfs")

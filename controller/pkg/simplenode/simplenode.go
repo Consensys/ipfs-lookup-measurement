@@ -27,6 +27,17 @@ func Experiment(ctx context.Context, publish int, nodesList []string) {
 	m.IntOption1 = 3
 	m.StrOption1 = fmt.Sprintf("node=%d,time=%v,key=1", publish, time.Now())
 
+	// Before everything starts. Get a list of IDs.
+	ids := make([]string, 0)
+	for _, n := range nodesList {
+		idBytes, err := getCall("id", n, m)
+		if err != nil {
+			fmt.Printf("error in getting id for node %v", n)
+			return
+		}
+		ids = append(ids, string(idBytes))
+	}
+
 	err := postCall("publish", node, m)
 	if err != nil {
 		log.Println(node, err)
@@ -109,6 +120,29 @@ func postCall(cmd string, node string, m messaging.RequestMessage) error {
 
 	_, err = http.Post(node, "application/json", buf)
 	return err
+}
+
+func getCall(cmd string, node string, m messaging.RequestMessage) ([]byte, error) {
+	m.Cmd = cmd
+	b, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+
+	buf, err := encryptStream(b)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := http.Post(node, "application/json", buf)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	return body, err
 }
 
 func encryptStream(bs []byte) (buf io.Reader, err error) {

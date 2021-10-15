@@ -1,17 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
-	"log"
-	"net/http"
+	"fmt"
+	"io/ioutil"
 	"os"
 
-	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/messaging"
+	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/server"
 )
 
 func main() {
-	log.SetFlags(log.Lshortfile)
-
 	ipfsTestFolder := os.Getenv("PERFORMANCE_TEST_DIR")
 	if ipfsTestFolder == "" {
 		ipfsTestFolder = "/ipfs-tests"
@@ -19,14 +18,16 @@ func main() {
 
 	err := os.Chdir(ipfsTestFolder)
 	if err != nil {
-		log.Fatalln(ipfsTestFolder, err)
+		fmt.Printf("error in chdir: %v\n", err.Error())
+		return
 	}
 
 	cmd := flag.NewFlagSet("simple", flag.ExitOnError)
 	portNumStr := cmd.String("p", "3030", "port number")
-
-	log.Println("start listening at:", *portNumStr)
-
-	http.HandleFunc("/", messaging.AgentHangler().ServeHTTP)
-	log.Fatal(http.ListenAndServe(":"+*portNumStr, nil))
+	key, err := ioutil.ReadFile(".key")
+	if err != nil {
+		fmt.Printf("error in getting the key: %v\n", err.Error())
+		return
+	}
+	server.NewServer(context.Background(), ":"+*portNumStr, string(key))
 }

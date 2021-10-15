@@ -4,5 +4,6 @@ go 1.16
 
 require (
 	github.com/ipfs/go-ipfs-api v0.2.0
+	github.com/ipfs/go-log v1.0.5
 	github.com/stretchr/testify v1.7.0
 )
