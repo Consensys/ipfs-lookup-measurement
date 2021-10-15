@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -122,20 +123,15 @@ func handleLookup(data []byte) (byte, []byte, error) {
 	}
 
 	// Retrieve the content
-	_, err = sh.Cat(cid)
+	reader, err := sh.Cat(cid)
 	if err != nil {
 		return 0, nil, err
 	}
-
-	// Add log
-	f, err := os.OpenFile("/home/ubuntu/all.log",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	retrieved, err := io.ReadAll(reader)
 	if err != nil {
-		return 0, nil, err
-	}
-	defer f.Close()
-	if _, err := f.WriteString(fmt.Sprintf("Retrieval for %v is finished.\n", cid)); err != nil {
-		return 0, nil, err
+		log.Errorf("error reading from retrieved content.")
+	} else {
+		log.Infof("retrieved content length is %v", len(retrieved))
 	}
 
 	return Lookup, []byte(cid), nil
