@@ -96,7 +96,7 @@ resource "aws_instance" "ipfs-testing-node-1" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
+    IPFS_LOGGING=INFO nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -150,7 +150,7 @@ resource "aws_instance" "ipfs-testing-node-2" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
+    IPFS_LOGGING=INFO nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -204,7 +204,7 @@ resource "aws_instance" "ipfs-testing-node-3" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
+    IPFS_LOGGING=INFO nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -258,7 +258,7 @@ resource "aws_instance" "ipfs-testing-node-4" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
+    IPFS_LOGGING=INFO nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
@@ -312,7 +312,7 @@ resource "aws_instance" "ipfs-testing-node-5" {
     nohup ./promtail-linux-amd64 -config.file=promtail-cloud-config.yaml &
     ./go-ipfs/cmd/ipfs/ipfs init
     nohup ./go-ipfs/cmd/ipfs/ipfs daemon > /home/ubuntu/all.log 2>&1 &
-    nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
+    IPFS_LOGGING=INFO nohup ./ipfs-lookup-measurement/controller/agent > /home/ubuntu/agent.log 2>&1 &
   EOF
 }
 
