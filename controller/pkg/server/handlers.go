@@ -56,10 +56,7 @@ func handleCheck(data []byte) (byte, []byte, error) {
 	sh.SetTimeout(20 * time.Second)
 
 	// Get cid
-	cid, err := sh.Add(bytes.NewReader(data), api.AddOpts(api.OnlyHash(true)))
-	if err != nil {
-		return 0, nil, err
-	}
+	cid := string(data)
 
 	// Check
 	_, err1 := os.Stat(fmt.Sprintf("ok-provide-%v", cid))
