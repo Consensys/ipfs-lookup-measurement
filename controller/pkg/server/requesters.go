@@ -108,27 +108,25 @@ func RequestLookup(addr string, key []byte, cid string) error {
 }
 
 // RequestClean requests a clean.
-func RequestClean(addr string, key []byte, cid string) error {
+func RequestClean(addr string, key []byte, cid string) (string, error) {
 	msgType, data, err := Request(addr, key, Clean, []byte(cid))
 	if err != nil {
-		return err
+		return "", err
 	}
 	if msgType != Clean {
-		return fmt.Errorf("wrong msg type received, expect %v, got %v", Clean, msgType)
+		return "", fmt.Errorf("wrong msg type received, expect %v, got %v", Clean, msgType)
 	}
-	fmt.Printf("Received output of %v for clean operation\n", string(data))
-	return nil
+	return string(data), nil
 }
 
 // RequestDisconnect requests a disconnection.
-func RequestDisconnect(addr string, key []byte) error {
+func RequestDisconnect(addr string, key []byte) (string, error) {
 	msgType, data, err := Request(addr, key, Disconnect, []byte{1})
 	if err != nil {
-		return err
+		return "", err
 	}
 	if msgType != Disconnect {
-		return fmt.Errorf("wrong msg type received, expect %v, got %v", Disconnect, msgType)
+		return "", fmt.Errorf("wrong msg type received, expect %v, got %v", Disconnect, msgType)
 	}
-	fmt.Printf("Received output of %v for disconnect operation\n", string(data))
-	return nil
+	return string(data), nil
 }

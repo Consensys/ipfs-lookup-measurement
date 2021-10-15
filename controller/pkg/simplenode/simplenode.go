@@ -2,61 +2,49 @@
 package simplenode
 
 import (
-	"bytes"
-	"context"
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/rand"
-	"encoding/json"
-	"fmt"
-	"io"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"sync"
 	"time"
 
-	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/messaging"
+	"github.com/ConsenSys/ipfs-lookup-measurement/controller/pkg/server"
+	logging "github.com/ipfs/go-log"
 )
 
+var log = logging.Logger("controller")
+
 // Experiment publish message from one node, and lookup from all other nodes
-func Experiment(ctx context.Context, publish int, nodesList []string) {
+func Experiment(publish int, key []byte, nodesList []string, ids []string) {
 	// Publish string from node[publish]
-	node := nodesList[publish]
-	m := messaging.RequestMessage{}
-	m.IntOption1 = 3
-	m.StrOption1 = fmt.Sprintf("node=%d,time=%v,key=1", publish, time.Now())
+	publisher := nodesList[publish]
 
-	// Before everything starts. Get a list of IDs.
-	ids := make([]string, 0)
-	for _, n := range nodesList {
-		idBytes, err := getCall("id", n, m)
-		if err != nil {
-			fmt.Printf("error in getting id for node %v", n)
-			return
-		}
-		ids = append(ids, string(idBytes))
-	}
+	// Generate random content, 512 bytes.
+	content := make([]byte, 512)
+	rand.Read(content)
 
-	err := postCall("publish", node, m)
+	// Request Publish
+	cid, err := server.RequestPublish(publisher, key, content)
 	if err != nil {
-		log.Println(node, err)
+		log.Errorf("Error in publishing content from %v: %v", publisher, err.Error())
 		return
 	}
-	log.Println("publish", node)
+	log.Infof("Published content from %v with cid: %v", publisher, cid)
 	// Need to wait till publish is finished.
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 60; i++ {
 		time.Sleep(5 * time.Second)
-		err = postCall("check", node, m)
-		if err == nil {
-			log.Println("publish is done")
-			break
-		}
-		if i == 29 {
-			log.Println("error in publishing.")
+		done, err := server.RequestCheck(publisher, key, cid)
+		if err != nil {
+			log.Errorf("Error in requesting a check to %v: %v", publisher, err.Error())
 			return
 		}
-		log.Println("publish in progress...")
+		if done {
+			log.Infof("Publish from %v is done", publisher)
+			break
+		}
+		if i == 59 {
+			log.Errorf("Error in publishing from %v", publisher)
+			return
+		}
+		log.Infof("Publish from %v in progress...", publisher)
 	}
 	// Start lookup from every other node.
 	var wg sync.WaitGroup
@@ -67,118 +55,48 @@ func Experiment(ctx context.Context, publish int, nodesList []string) {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup, lookupNode string) {
 			defer wg.Done()
-			err = postCall("lookup", lookupNode, m)
+			// First do a disconnection to avoid using bitswap
+			out, err := server.RequestDisconnect(lookupNode, key)
 			if err != nil {
-				log.Println(lookupNode, err)
+				log.Errorf("Error requesting disconnection to %v: %v", lookupNode, err.Error())
 				return
 			}
+			log.Infof("Response of disconnection from %v is: %v", lookupNode, out)
 			// Need to wait till lookup is finished.
 			for i := 0; i < 30; i++ {
 				time.Sleep(5 * time.Second)
-				err = postCall("check", lookupNode, m)
-				if err == nil {
-					log.Println("lookup is done")
+				done, err := server.RequestCheck(lookupNode, key, cid)
+				if err != nil {
+					log.Errorf("Error in requesting a check to %v: %v", lookupNode, err.Error())
+					return
+				}
+				if done {
+					log.Infof("Lookup from %v is done", lookupNode)
 					break
 				}
 				if i == 29 {
-					log.Println("error in lookup.")
+					log.Errorf("Error in lookup from %v", lookupNode)
 					return
 				}
-				log.Println("lookup in progress...")
+				log.Infof("Lookup from %v in progress...", lookupNode)
 			}
-			log.Printf("lookup put=%v lookup=%v is done\n", node, lookupNode)
 		}(&wg, lookupNode)
 	}
 	// Wait till all lookup is finished.
 	wg.Wait()
 	// Clean
-	for _, lookupNode := range nodesList {
+	for _, node := range nodesList {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, lookupNode string) {
+		go func(wg *sync.WaitGroup, node string) {
 			defer wg.Done()
-			err = postCall("swarmdisconnect", lookupNode, m)
+			out, err := server.RequestClean(node, key, cid)
 			if err != nil {
-				log.Println("swarmdisconnect", lookupNode, err)
+				log.Errorf("Error in requesting clean of %v to %v: %v", cid, node, err.Error())
+			} else {
+				log.Infof("Response of clean of %v from %v is: %v", cid, node, out)
 			}
-		}(&wg, lookupNode)
+		}(&wg, node)
 	}
 	wg.Wait()
-	log.Println("clean is done")
-}
-
-func postCall(cmd string, node string, m messaging.RequestMessage) error {
-	m.Cmd = cmd
-	b, err := json.Marshal(m)
-	if err != nil {
-		return err
-	}
-
-	buf, err := encryptStream(b)
-	if err != nil {
-		return err
-	}
-
-	_, err = http.Post(node, "application/json", buf)
-	return err
-}
-
-func getCall(cmd string, node string, m messaging.RequestMessage) ([]byte, error) {
-	m.Cmd = cmd
-	b, err := json.Marshal(m)
-	if err != nil {
-		return nil, err
-	}
-
-	buf, err := encryptStream(b)
-	if err != nil {
-		return nil, err
-	}
-
-	r, err := http.Post(node, "application/json", buf)
-	if err != nil {
-		return nil, err
-	}
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, err
-}
-
-func encryptStream(bs []byte) (buf io.Reader, err error) {
-	key, err := ioutil.ReadFile(".key")
-	if err != nil {
-		return
-	}
-	key = key[:32]
-
-	// generate a new aes cipher using our 32 byte long key
-	c, err := aes.NewCipher(key)
-	if err != nil {
-		return
-	}
-
-	// gcm or Galois/Counter Mode, is a mode of operation
-	// for symmetric key cryptographic block ciphers
-	gcm, err := cipher.NewGCM(c)
-	if err != nil {
-		return
-	}
-
-	// creates a new byte array the size of the nonce
-	// which must be passed to Seal
-	nonce := make([]byte, gcm.NonceSize())
-	// populates our nonce with a cryptographically secure
-	// random sequence
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return
-	}
-
-	// here we encrypt our text using the Seal function
-	// Seal encrypts and authenticates plaintext, authenticates the
-	// additional data and appends the result to dst, returning the updated
-	// slice. The nonce must be NonceSize() bytes long and unique for all
-	// time, for a given key.
-
-	return bytes.NewBuffer(gcm.Seal(nonce, nonce, bs, nil)), nil
+	log.Infof("clean is done")
 }
