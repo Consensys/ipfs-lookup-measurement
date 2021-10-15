@@ -40,6 +40,7 @@ func handleGetID(data []byte) (byte, []byte, error) {
 func (a *agent) handleSetID(data []byte) (byte, []byte, error) {
 	idStr := string(data)
 	idStrs := strings.Split(idStr, ";")
+	a.peerIDs = make([]string, 0)
 	for _, id := range idStrs {
 		a.peerIDs = append(a.peerIDs, id)
 	}
