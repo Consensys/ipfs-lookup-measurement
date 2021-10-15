@@ -55,7 +55,7 @@ func main() {
 			fmt.Printf("error setting id for node %v: %v", node, err.Error())
 			return
 		}
-		fmt.Printf("Got response for setting id for node %v: %v", node, out)
+		fmt.Printf("Got response for setting id for node %v: %v\n", node, out)
 	}
 
 	// Start the experiment.
