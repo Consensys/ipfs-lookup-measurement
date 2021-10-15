@@ -22,6 +22,13 @@ func Experiment(publish int, key []byte, nodesList []string) {
 	rand.Read(content)
 
 	// Request Publish
+	// First do a disconnection to avoid using bitswap
+	out, err := server.RequestDisconnect(publisher, key)
+	if err != nil {
+		log.Errorf("Error requesting disconnection to %v: %v", publisher, err.Error())
+		return
+	}
+	log.Infof("Response of disconnection from %v is: %v", publisher, out)
 	cid, err := server.RequestPublish(publisher, key, content)
 	if err != nil {
 		log.Errorf("Error in publishing content from %v: %v", publisher, err.Error())
