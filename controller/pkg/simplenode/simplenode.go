@@ -13,7 +13,7 @@ import (
 var log = logging.Logger("controller")
 
 // Experiment publish message from one node, and lookup from all other nodes
-func Experiment(publish int, key []byte, nodesList []string, ids []string) {
+func Experiment(publish int, key []byte, nodesList []string) {
 	// Publish string from node[publish]
 	publisher := nodesList[publish]
 

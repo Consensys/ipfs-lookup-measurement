@@ -167,7 +167,7 @@ func (a *agent) handleDisonnect(data []byte) (byte, []byte, error) {
 		cli := fmt.Sprintf("%v swarm peers | /bin/grep %s | %v swarm disconnect", ipfs, peer, ipfs)
 		out, err := exec.Command("sh", "-xc", cli).CombinedOutput()
 		if err != nil {
-			output = append(output, err.Error())
+			output = append(output, fmt.Sprintf("%v%v\n", string(out), err.Error()))
 		} else {
 			output = append(output, string(out))
 		}

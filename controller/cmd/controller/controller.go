@@ -47,12 +47,22 @@ func main() {
 		fmt.Printf("Got node id for %v: %v\n", node, id)
 		ids = append(ids, id)
 	}
+	// Ask every node to set IDs.
+	for _, node := range nodesList {
+		fmt.Printf("Start asking node %v to set up ids\n", node)
+		out, err := server.RequestSetID(node, key, ids)
+		if err != nil {
+			fmt.Printf("error setting id for node %v: %v", node, err.Error())
+			return
+		}
+		fmt.Printf("Got response for setting id for node %v: %v", node, out)
+	}
 
 	// Start the experiment.
 	publish := 0
 	max := len(nodesList) - 1
 	for {
-		simplenode.Experiment(publish, key, nodesList, ids)
+		simplenode.Experiment(publish, key, nodesList)
 		log.Println("one test is done")
 		if *intervalSeconds == 0 {
 			break
