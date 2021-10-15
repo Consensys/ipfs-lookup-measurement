@@ -1,3 +1,3 @@
 #!/bin/bash
 
-terraform destroy -auto-approve -var="KEY=0"
+terraform destroy -var="KEY=0"
