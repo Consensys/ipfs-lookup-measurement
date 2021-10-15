@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -106,33 +105,18 @@ func handlePublish(data []byte) (byte, []byte, error) {
 
 // handleLookup handles lookup request.
 func handleLookup(data []byte) (byte, []byte, error) {
-	// Use IPFS shell
-	sh := api.NewLocalShell()
-	if sh == nil {
-		return 0, nil, fmt.Errorf("error getting local ipfs shell")
-	}
-	sh.SetTimeout(20 * time.Second)
+	// Use IPFS CLI
+	ipfs := getIPFSCLI()
 
 	// Get cid
 	cid := string(data)
 
-	// write cid to a file
-	err := os.WriteFile(fmt.Sprintf("lookup-%v", cid), []byte{1}, 0644)
-	if err != nil {
-		return 0, nil, fmt.Errorf("error writing cid %v to file: %v\n", cid, err)
-	}
-
-	// Retrieve the content
-	reader, err := sh.Cat(cid)
+	cli := fmt.Sprintf("%s dht findprovs %s", ipfs, cid)
+	out, err := exec.Command("sh", "-xc", cli).CombinedOutput()
 	if err != nil {
 		return 0, nil, err
 	}
-	retrieved, err := io.ReadAll(reader)
-	if err != nil {
-		log.Errorf("error reading from retrieved content.")
-	} else {
-		log.Infof("retrieved content length is %v", len(retrieved))
-	}
+	log.Infof("lookup %v: %v\n", cid, string(out))
 
 	return Lookup, []byte(cid), nil
 }
