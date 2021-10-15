@@ -72,7 +72,7 @@ func handleCheck(data []byte) (byte, []byte, error) {
 	os.Remove(fmt.Sprintf("ok-provide-%v", cid))
 	os.Remove(fmt.Sprintf("ok-lookup-%v", cid))
 
-	return Check, []byte{1}, nil
+	return Check, []byte{0}, nil
 }
 
 // handlePublish handles publish request.
