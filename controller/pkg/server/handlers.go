@@ -111,6 +111,12 @@ func handleLookup(data []byte) (byte, []byte, error) {
 	// Get cid
 	cid := string(data)
 
+	// Write to the file
+	err := os.WriteFile(fmt.Sprintf("lookup-%v", cid), []byte{1}, 0644)
+	if err != nil {
+		return 0, nil, fmt.Errorf("error writing cid %v to file: %v\n", cid, err)
+	}
+
 	cli := fmt.Sprintf("%s dht findprovs %s", ipfs, cid)
 	out, err := exec.Command("sh", "-xc", cli).CombinedOutput()
 	if err != nil {

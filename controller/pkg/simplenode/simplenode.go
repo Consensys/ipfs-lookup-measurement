@@ -69,12 +69,12 @@ func Experiment(publish int, key []byte, nodesList []string) {
 				return
 			}
 			log.Infof("Response of disconnection from %v is: %v", lookupNode, out)
+			log.Infof("Start lookup %v from %v", cid, lookupNode)
 			err = server.RequestLookup(lookupNode, key, cid)
 			if err != nil {
 				log.Errorf("Error requesting lookup to %v: %v", lookupNode, err.Error())
 				return
 			}
-			log.Infof("Start lookup %v from %v", cid, lookupNode)
 			// Need to wait till lookup is finished.
 			for i := 0; i < 30; i++ {
 				time.Sleep(5 * time.Second)
