@@ -81,6 +81,7 @@ resource "aws_instance" "ipfs-testing-node-1" {
     cd go-ipfs
     git checkout more-logging
     echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    go mod tidy
     make build > buildLog.txt 2>&1
     cd ..
     mkdir ./ipfs-tests/
@@ -135,6 +136,7 @@ resource "aws_instance" "ipfs-testing-node-2" {
     cd go-ipfs
     git checkout more-logging
     echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    go mod tidy
     make build > buildLog.txt 2>&1
     cd ..
     mkdir ./ipfs-tests/
@@ -189,6 +191,7 @@ resource "aws_instance" "ipfs-testing-node-3" {
     cd go-ipfs
     git checkout more-logging
     echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    go mod tidy
     make build > buildLog.txt 2>&1
     cd ..
     mkdir ./ipfs-tests/
@@ -243,6 +246,7 @@ resource "aws_instance" "ipfs-testing-node-4" {
     cd go-ipfs
     git checkout more-logging
     echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    go mod tidy
     make build > buildLog.txt 2>&1
     cd ..
     mkdir ./ipfs-tests/
@@ -297,6 +301,7 @@ resource "aws_instance" "ipfs-testing-node-5" {
     cd go-ipfs
     git checkout more-logging
     echo "replace github.com/libp2p/go-libp2p-kad-dht => ../go-libp2p-kad-dht" >> go.mod
+    go mod tidy
     make build > buildLog.txt 2>&1
     cd ..
     mkdir ./ipfs-tests/
