@@ -39,17 +39,13 @@ def yieldElapsed(fileName):
         elif logkey == "Finish providing cid":
             start = events[cid]["start"]
             events[cid].update(elapsed=logtime-start)
-            y = events[cid]
-            del(events[cid])
-            yield y
+            yield events.pop(cid)
         elif logkey == "Start retrieving content for":
             events[cid] = dict(start=logtime, event="retrieving")
         elif logkey == "Done retrieving content for":
             start = events[cid]["start"]
             events[cid].update(elapsed=logtime-start)
-            y = events[cid]
-            del(events[cid])
-            yield y
+            yield events.pop(cid)
 
 if __name__ == "__main__":
     for m in parseLines(fileName):
@@ -75,11 +71,11 @@ example output:
 {'logtime': '2021-10-18 12:55:35', 'logkey': 'Start retrieving content for', 'cid': 'QmVRBagUJMHgskxqXSJVsZt5GBsZy59uNvUyQtmaxYwTaD'}
 {'logtime': '2021-10-18 12:55:36', 'logkey': 'Done retrieving content for', 'cid': 'QmVRBagUJMHgskxqXSJVsZt5GBsZy59uNvUyQtmaxYwTaD'}
 Elapsed:
-{'start': 1634521711.0, 'event': 'providing', 'elaps': 12.0}
-{'start': 1634521772.0, 'event': 'providing', 'elaps': 48.0}
-{'start': 1634521917.0, 'event': 'providing', 'elaps': 60.0}
-{'start': 1634522041.0, 'event': 'retrieving', 'elaps': 2.0}
-{'start': 1634522073.0, 'event': 'retrieving', 'elaps': 2.0}
-{'start': 1634522094.0, 'event': 'retrieving', 'elaps': 1.0}
-{'start': 1634522135.0, 'event': 'retrieving', 'elaps': 1.0}
+{'start': 1634521711.0, 'event': 'providing', 'elapsed': 12.0}
+{'start': 1634521772.0, 'event': 'providing', 'elapsed': 48.0}
+{'start': 1634521917.0, 'event': 'providing', 'elapsed': 60.0}
+{'start': 1634522041.0, 'event': 'retrieving', 'elapsed': 2.0}
+{'start': 1634522073.0, 'event': 'retrieving', 'elapsed': 2.0}
+{'start': 1634522094.0, 'event': 'retrieving', 'elapsed': 1.0}
+{'start': 1634522135.0, 'event': 'retrieving', 'elapsed': 1.0}
 """
