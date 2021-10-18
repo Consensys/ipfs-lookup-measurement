@@ -23,3 +23,6 @@
 
 # binary file
 node/agent
+
+# Log file
+*.log
