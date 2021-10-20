@@ -201,6 +201,7 @@ plt.pie(trim_agents.values(), labels=trim_agents.keys(), autopct="%.1f%%")
 plt.title("Agent came across fail to store provider record, total {} records".format(total))
 plt.savefig("./figs/pvd_failed_agents.png")
 # Overall ret latency
+plt.clf()
 plt.rc('font', size=8)
 plt.hist(list(ret_latencies), bins=20, density=False)
 plt.title("Content fetch overall latency")
