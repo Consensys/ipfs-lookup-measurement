@@ -4,7 +4,12 @@ import os
 from subprocess import run
 
 def setLokiEnv():
-    os.putenv("LOKI_ADDR", "http://54.66.169.156:3100/")
+    monitor_addr = "http://localhost:3100"
+    with open('nodes-list.out') as f:
+        monitor_addr = f.readline()
+        monitor_addr = monitor_addr.split("\"")[1]
+        monitor_addr = "http://{}:3100/".format(monitor_addr)
+    os.putenv("LOKI_ADDR", monitor_addr)
 
 def downloadLogs():
     for i in range(1,6):
