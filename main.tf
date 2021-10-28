@@ -346,33 +346,6 @@ resource "aws_instance" "ipfs-testing-node-5" {
   EOF
 }
 
-resource "aws_instance" "ipfs-testing-controller" {
-  ami           = "ami-0567f647e75c7bc05"
-  instance_type = "t2.small"
-  tags = {
-    Name = "ipfs-testing-controller"
-  }
-  security_groups = ["security_ipfs_testing_node"]
-  user_data       = <<-EOF
-    #!/bin/sh
-    cd /home/ubuntu/
-    sudo apt-get update
-    sudo apt install -y unzip git make build-essential
-    wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
-    sudo tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
-    mkdir /home/ubuntu/go
-    export KEY="${var.KEY}"
-    export HOME=/home/ubuntu
-    export GOPATH=/home/ubuntu/go
-    export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
-    git clone https://github.com/ConsenSys/ipfs-lookup-measurement.git
-    cd ipfs-lookup-measurement
-    cd controller
-    make build
-    echo "$KEY" > /home/ubuntu/ipfs-lookup-measurement/.key
-  EOF
-}
-
 resource "aws_security_group" "security_ipfs_testing_monitor" {
   name        = "security_ipfs_testing_monitor"
   description = "security group for ipfs testing monitor"
