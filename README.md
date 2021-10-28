@@ -10,6 +10,10 @@
 
 This graph is a histogram of the total latency in content publish phase. It includes the time of the DHT walk to discover 20 cloest peers to the content and the time of putting the provider record.
 
+![Graph](./figs/pvd_latency_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 200000ms.
+
 #### 2 Agent version for all encountered nodes during content publish
 
 ![Graph](./figs/pvd_agents.png)
@@ -21,6 +25,10 @@ This graph is a bar chart of the agent version for all encountered nodes during 
 ![Graph](./figs/pvd_dht_walk_latency.png)
 
 We break down the overall latency and this graph is a histogram of the latency involved in the DHT walk of publishing content.
+
+![Graph](./figs/pvd_dht_walk_latency_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 150000ms.
 
 #### 4 Content publish DHT walk encountered agent
 
@@ -34,6 +42,10 @@ This graph is a bar chart of the agent version for all encountered nodes in the 
 
 We break down the overall latency and this graph is a histogram of the latency involved in putting the provider record to the discovered closest peers. 
 
+![Graph](./figs/pvd_put_latency_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 150000ms.
+
 #### 6 Content publish PUT encountered agent
 
 ![Graph](./figs/pvd_agents_put.png)
@@ -45,6 +57,10 @@ This graph is a bar chart of the agent version for all nodes selected to store t
 ![Graph](./figs/pvd_put_latency_succeed.png)
 
 When we put the provider record to a peer, most of the time this action is successful and this graph is a hisogram of the latency involved in successful putting provider record.
+
+![Graph](./figs/pvd_put_latency_succeed_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 2000ms.
 
 #### 8 Content publish PUT provider record SUCCEED agent
 
@@ -58,6 +74,10 @@ This graph is a bar chart of the agent version for all nodes that succeed in sto
 
 When we put the provider record to a peer, sometimes this action is failed and this graph is a hisogram of the latency involved in failed putting provider record.
 
+![Graph](./figs/pvd_put_latency_failed_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 60000ms.
+
 #### 10 Content publish PUT provider record FAILED agent
 
 ![Graph](./figs/pvd_agents_put_failed.png)
@@ -69,6 +89,10 @@ This graph is a bar chart of the agent version for all nodes that fail to store 
 ![Graph](./figs/ret_latency.png)
 
 This graph is a histogram of the total latency in content retrieval phase. It includes the time of the DHT walk to discover the provider record and the time of retrieving the content.
+
+![Graph](./figs/ret_latency_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 4000ms.
 
 #### 12 Agent version for all encountered nodes during content retrieval
 
@@ -82,6 +106,10 @@ This graph is a bar chart of the agent version for all encountered nodes during 
 
 We break down the overall latency and this graph is a histogram of the latency involved in the DHT walk of retrieving content.
 
+![Graph](./figs/ret_dht_walk_latency_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 2750ms.
+
 #### 12 Content retrieval DHT walk encountered agent
 
 ![Graph](./figs/ret_agents_dht_walk.png)
@@ -93,6 +121,10 @@ This graph is a bar chart of the agent version for all countered nodes during DH
 ![Graph](./figs/ret_get_latency.png)
 
 We break down the overall latency and this graph is a histogram of the latency involved in the actual fetch of the content. Because our test file are generally small in size, so this latency can be viewed as the approximate latency to first byte.
+
+![Graph](./figs/ret_get_latency_trim.png)
+
+This is the graph after we exlude the outliers and focus on the latency that is less than 700ms.
 
 #### 14 Content retrieval encountered agent
 
