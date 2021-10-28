@@ -104,7 +104,7 @@ This graph is a bar chart of the agent version for all nodes that we got a provi
 
 ![Graph](./figs/pvd_agents_get_error.png)
 
-This graph is a bar chart of the agent version for the nodes that succeed in putting a provider record but fail to obtain a provider record after this.
+This graph is a bar chart of the agent version for the nodes that succeed in putting a provider record but fail to obtain a provider record after this. The failed rate is out of the total number reported in Figure 8.
 
 #### 16 Error message for the nodes that fail to get a provider record after a successful put
 
