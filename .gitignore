@@ -26,3 +26,4 @@ node/agent
 
 # Log file
 *.log
+.DS_Store
