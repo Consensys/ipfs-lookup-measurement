@@ -1,5 +1,45 @@
 # ipfs-lookup-measurement
 
+## Instructions
+
+Follow these instructions to deploy testing nodes and monitor in AWS.
+First of all, you need to make sure you have terraform cli and AWS cli installed, check https://learn.hashicorp.com/tutorials/terraform/install-cli and https://aws.amazon.com/cli/ for information on how to install on your machine.
+To check if you have them installed:
+```
+terraform version
+aws --version
+```
+Secondly, you need to configure aws with your credentials by run `aws configure`.
+Thirdly, you need to build the controller.
+```
+cd controller
+make build
+```
+Lastly, you are ready to spin up the nodes.
+```
+terraform init (Only need to run at the first time)
+./up.sh
+```
+This script will automatically spins up 5 testing nodes and 1 monitor node in sydney AWS. If you wish to spin up more nodes or with more complicated setup. Please have a look at the `main.tf` file. It is very easy to use different configurations.
+This script will also automatically open the monitor in the browser. Wait for the monitor to come alive and log in with default username `admin` and default password `admin`. Remember to change the password after you logged in. After the monitor is alive, navigate to `Dashboards -> manage -> IPFS Measurement Logging`. Wait for all nodes to output the first logging before the next step. After every node is alive, start the experiment using:
+```
+./run.sh
+```
+`run.sh` will start the experiment. It will run an experiment every 60 seconds. The provider will rotate among all the nodes deployed. Controller will ask the provider to publish a content. After the content is published, the controller will then ask the rest of the nodes to fetch the content. This is called one experiment. The controller can be run as:
+```
+./controller/controller (This will run a single experiment)
+OR
+./controller/controller -i 60 (This will run experiments every 60 seconds, -i is used to specify the interval)
+```
+After you run the experiments for relatively long time (6 hours for example), you can download the logs and generate the plots by
+```
+python3 ./analysis/download_logs.py
+python3 ./analysis/plot.py
+```
+Then you should be able to see figures under `./figs` directory.
+
+Note, if you are running multiple nodes, change the `download_logs.py` line 6 `num_nodes=$(Number of nodes)`.
+
 ## Result
 
 ### Content publish
