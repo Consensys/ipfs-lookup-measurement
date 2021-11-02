@@ -25,7 +25,7 @@ This script will also automatically open the monitor in the browser. Wait for th
 ```
 ./run.sh
 ```
-`run.sh` will start the experiment. It will run an experiment every 60 seconds. The provider will rotate among all the nodes deployed. Controller will ask the provider to publish a content. After the content is published, the controller will then ask the rest of the nodes to fetch the content. This is called one experiment. The controller can be run as:
+`run.sh` will start the experiment. It will run an experiment every 60 seconds. The provider will rotate among all the nodes deployed. Controller will ask the provider to publish a content. After the content is published (the whole publication process is finished), the controller will then immediately ask the rest of the nodes to fetch the content. This is called one experiment. The controller can be run as:
 ```
 ./controller/controller (This will run a single experiment)
 OR
